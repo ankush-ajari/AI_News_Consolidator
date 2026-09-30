@@ -24,7 +24,11 @@ builder.Configuration
 
 builder.Services.AddSourceIngestionInfrastructure(builder.Configuration);
 
-if (ConsoleCommandParser.HasFlag(args, "--mock-llm"))
+var commandForMode = args.Length > 0 ? args[0] : string.Empty;
+var mockFlag = ConsoleCommandParser.HasFlag(args, "--mock-llm");
+var foundryApiKey = builder.Configuration.GetSection(LlmClientOptions.SectionName).GetValue<string>("ApiKey") ?? string.Empty;
+var shouldUseMock = ConsoleLlmModeDecider.ShouldUseMock(commandForMode, mockFlag, !string.IsNullOrWhiteSpace(foundryApiKey));
+if (shouldUseMock)
 {
     builder.Services.AddScoped<ILLMClient, MockLlmClient>();
     builder.Services.AddScoped<ITrendCorrelationService, MockTrendCorrelationService>();
@@ -37,6 +41,13 @@ if (args.Length == 0 || !ConsoleCommandParser.IsSupportedCommand(args[0]))
 {
     Console.WriteLine("Usage: dotnet run --project src/AiIntelligence.Console -- <fetch|ingest|analyze|analyze-trends|inspect|reset|report|test-llm|run-workflow> [sources|raw|trends|stats|analysis|intelligence] [options]");
     return;
+}
+
+if (!shouldUseMock
+    && !string.IsNullOrWhiteSpace(commandForMode)
+    && IsLlmRequiredCommand(commandForMode))
+{
+    throw new InvalidOperationException("Foundry LLM configuration is missing required key(s): Foundry:ApiKey.");
 }
 
 var command = args[0];
@@ -526,6 +537,14 @@ static async Task RunInspectAsync(
     }
 
     Console.WriteLine("Unknown inspect target. Use sources, raw, trends, or stats.");
+}
+
+static bool IsLlmRequiredCommand(string command)
+{
+    return string.Equals(command, "analyze", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "analyze-trends", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "test-llm", StringComparison.OrdinalIgnoreCase);
 }
 
 static async Task RunResetAsync(string[] args, MaintenanceResetService resetService, CancellationToken cancellationToken)

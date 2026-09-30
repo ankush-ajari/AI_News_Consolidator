@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "hqZkdWt9dZRV6nnCGUKBw0NjQls902/lunbat0iUTweYtqAzS4UenNvvDBsnuMHmD5v8Pz/w0gym1nBvMMh9MQ==",
+  "dgSpecHash": "O5MDJwnhYvrva0t9UU6yDHLnpi1Thh04y4ndSbiT68NqewUMKPoZOXIFVzffLno7ACMquO8HxPqvm7+UPkRSMg==",
   "success": true,
-  "projectFilePath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Application.Tests\\AiIntelligence.Application.Tests.csproj",
+  "projectFilePath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Application.Tests\\AiIntelligence.Application.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ajari_a\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\coverlet.collector\\6.0.0\\coverlet.collector.6.0.0.nupkg.sha512",
