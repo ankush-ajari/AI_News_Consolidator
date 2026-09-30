@@ -100,3 +100,4 @@ E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\obj\Deb
 E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\obj\Debug\net8.0\AiIntelligence.Domain.Tests.pdb
 E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\obj\Debug\net8.0\AiIntelligence.Domain.Tests.genruntimeconfig.cache
 E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\obj\Debug\net8.0\ref\AiIntelligence.Domain.Tests.dll
+E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\obj\Debug\net8.0\AiIntelligence.Domain.Tests.sourcelink.json

@@ -17,3 +17,4 @@ E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Infrastructure\obj\Deb
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Infrastructure\obj\Debug\net8.0\ref\AiIntelligence.Infrastructure.dll
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Infrastructure\bin\Debug\net8.0\AiIntelligence.Infrastructure.runtimeconfig.json
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Infrastructure\obj\Debug\net8.0\AiIntelligence.Infrastructure.genruntimeconfig.cache
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Infrastructure\obj\Debug\net8.0\AiIntelligence.Infrastructure.sourcelink.json

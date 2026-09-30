@@ -9,3 +9,4 @@ E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\refint\AiIntelligence.Domain.dll
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\AiIntelligence.Domain.pdb
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\ref\AiIntelligence.Domain.dll
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\AiIntelligence.Domain.sourcelink.json

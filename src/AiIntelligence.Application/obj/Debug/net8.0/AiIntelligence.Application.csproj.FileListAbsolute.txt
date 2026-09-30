@@ -13,3 +13,4 @@ E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Application\obj\Debug\
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Application\obj\Debug\net8.0\refint\AiIntelligence.Application.dll
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Application\obj\Debug\net8.0\AiIntelligence.Application.pdb
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Application\obj\Debug\net8.0\ref\AiIntelligence.Application.dll
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Application\obj\Debug\net8.0\AiIntelligence.Application.sourcelink.json
