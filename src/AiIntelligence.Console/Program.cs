@@ -79,43 +79,66 @@ if (string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase))
     Console.WriteLine($"Started at: {result.StartedAt:O}");
     Console.WriteLine($"Completed at: {result.CompletedAt:O}");
 
-    if (!string.IsNullOrWhiteSpace(result.IngestionSummary))
+    if (verbose)
     {
-        Console.WriteLine($"Ingestion: {result.IngestionSummary}");
-    }
+        Console.WriteLine();
+        Console.WriteLine("WORKFLOW START");
+        foreach (var stage in result.StageResults)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"Stage: {stage.Stage}");
+            Console.WriteLine($"Status: {stage.Status}");
 
-    if (!string.IsNullOrWhiteSpace(result.CurrentAnalysisSummary))
-    {
-        Console.WriteLine($"Current analysis: {result.CurrentAnalysisSummary}");
-    }
+            foreach (var metric in stage.Metrics)
+            {
+                Console.WriteLine($"{metric.Key}: {metric.Value}");
+            }
+        }
 
-    if (!string.IsNullOrWhiteSpace(result.TrendAnalysisSummary))
-    {
-        Console.WriteLine($"Trend analysis: {result.TrendAnalysisSummary}");
+        Console.WriteLine();
+        Console.WriteLine("WORKFLOW COMPLETE");
     }
-
-    if (result.CorrelationCount.HasValue)
+    else
     {
-        Console.WriteLine($"Correlations: {result.CorrelationCount}");
-    }
+        if (!string.IsNullOrWhiteSpace(result.IngestionSummary))
+        {
+            Console.WriteLine($"Ingestion: {result.IngestionSummary}");
+        }
 
-    if (result.InsufficientEvidenceCount.HasValue)
-    {
-        Console.WriteLine($"Insufficient evidence correlations: {result.InsufficientEvidenceCount}");
-    }
+        if (!string.IsNullOrWhiteSpace(result.CurrentAnalysisSummary))
+        {
+            Console.WriteLine($"Current analysis: {result.CurrentAnalysisSummary}");
+        }
 
-    if (result.PersonaSectionCount.HasValue)
-    {
-        Console.WriteLine($"Persona sections: {result.PersonaSectionCount}");
-    }
+        if (!string.IsNullOrWhiteSpace(result.TrendAnalysisSummary))
+        {
+            Console.WriteLine($"Trend analysis: {result.TrendAnalysisSummary}");
+        }
 
-    if (!string.IsNullOrWhiteSpace(result.ReportPath))
-    {
-        Console.WriteLine($"Report path: {result.ReportPath}");
+        if (result.CorrelationCount.HasValue)
+        {
+            Console.WriteLine($"Correlations: {result.CorrelationCount}");
+        }
+
+        if (result.InsufficientEvidenceCount.HasValue)
+        {
+            Console.WriteLine($"Insufficient evidence correlations: {result.InsufficientEvidenceCount}");
+        }
+
+        if (result.PersonaSectionCount.HasValue)
+        {
+            Console.WriteLine($"Persona sections: {result.PersonaSectionCount}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(result.ReportPath))
+        {
+            Console.WriteLine($"Report path: {result.ReportPath}");
+        }
     }
 
     if (result.StageErrors.Count > 0)
     {
+        Console.WriteLine();
         Console.WriteLine("Stage errors:");
         foreach (var error in result.StageErrors)
         {

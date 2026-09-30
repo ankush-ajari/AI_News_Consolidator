@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "T5mPNRQymevVW1t6qAJkr7fh+LH3znwJumhq5VZ6XWK9dfX2PopR1rwY6eQ47egahFpiNzK8sE6uaYZnbN6kaA==",
+  "dgSpecHash": "pKczYpLtSrGkFEO9rkIZ8vDPZGXyhe1Ujtbqe/LgAjuXoFtmA6P3Cfb1ejGddccMBB0DtLjsIBUBkZn0iNeN8A==",
   "success": true,
-  "projectFilePath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Domain.Tests\\AiIntelligence.Domain.Tests.csproj",
+  "projectFilePath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Domain.Tests\\AiIntelligence.Domain.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ajari_a\\.nuget\\packages\\coverlet.collector\\6.0.0\\coverlet.collector.6.0.0.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\microsoft.codecoverage\\17.8.0\\microsoft.codecoverage.17.8.0.nupkg.sha512",

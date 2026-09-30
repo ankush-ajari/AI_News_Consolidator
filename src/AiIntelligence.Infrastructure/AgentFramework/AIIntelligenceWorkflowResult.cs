@@ -11,9 +11,22 @@ public sealed record AIIntelligenceWorkflowResult(
     int? InsufficientEvidenceCount,
     int? PersonaSectionCount,
     string? ReportPath,
-    IReadOnlyCollection<WorkflowStageError> StageErrors);
+    IReadOnlyCollection<WorkflowStageError> StageErrors,
+    IReadOnlyCollection<WorkflowStageResult> StageResults);
 
 public sealed record WorkflowStageError(
     string Stage,
     string ErrorType,
     string Message);
+
+public sealed record WorkflowStageResult(
+    string Stage,
+    WorkflowStageStatus Status,
+    IReadOnlyDictionary<string, string> Metrics);
+
+public enum WorkflowStageStatus
+{
+    Skipped,
+    Completed,
+    Failed
+}

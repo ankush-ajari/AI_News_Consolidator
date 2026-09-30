@@ -83,6 +83,12 @@ public sealed class AIIntelligenceWorkflowTests
 
         Assert.True(result.Success);
         Assert.Equal(new[] { "ingestion", "current-analysis", "trend-analysis", "correlation", "persona-report", "render-report" }, sequence);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "Ingestion" && stage.Status == WorkflowStageStatus.Completed);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "CurrentIntelligence" && stage.Status == WorkflowStageStatus.Completed);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "TrendAnalysis" && stage.Status == WorkflowStageStatus.Completed);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "Correlation" && stage.Status == WorkflowStageStatus.Completed);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "PersonaReport" && stage.Status == WorkflowStageStatus.Completed);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "RenderReport" && stage.Status == WorkflowStageStatus.Completed);
     }
 
     [Fact]
@@ -129,6 +135,7 @@ public sealed class AIIntelligenceWorkflowTests
         Assert.Equal(new[] { "ingestion", "current-analysis" }, sequence);
         Assert.Single(result.StageErrors);
         Assert.Equal("CurrentIntelligence", result.StageErrors.Single().Stage);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "CurrentIntelligence" && stage.Status == WorkflowStageStatus.Failed);
     }
 
     [Fact]
@@ -177,6 +184,8 @@ public sealed class AIIntelligenceWorkflowTests
         await trendEvidenceRepository.Received(1).ListAsync(Arg.Any<CancellationToken>());
         await currentTool.DidNotReceiveWithAnyArgs().ExecuteAsync(default!, default);
         await trendTool.DidNotReceiveWithAnyArgs().ExecuteAsync(default!, default);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "Ingestion" && stage.Status == WorkflowStageStatus.Skipped);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "TrendAnalysis" && stage.Status == WorkflowStageStatus.Skipped);
     }
 
     [Fact]
@@ -223,6 +232,8 @@ public sealed class AIIntelligenceWorkflowTests
         Assert.Equal(new[] { "correlation" }, sequence);
         await personaTool.DidNotReceiveWithAnyArgs().ExecuteAsync(default!, default);
         renderTool.DidNotReceiveWithAnyArgs().Execute(default!);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "PersonaReport" && stage.Status == WorkflowStageStatus.Skipped);
+        Assert.Contains(result.StageResults, stage => stage.Stage == "RenderReport" && stage.Status == WorkflowStageStatus.Skipped);
     }
 
     private static IConfiguration BuildConfiguration()

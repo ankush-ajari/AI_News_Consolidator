@@ -5823,11 +5823,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Application.Tests\\AiIntelligence.Application.Tests.csproj",
+      "projectUniqueName": "e:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Application.Tests\\AiIntelligence.Application.Tests.csproj",
       "projectName": "AiIntelligence.Application.Tests",
-      "projectPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Application.Tests\\AiIntelligence.Application.Tests.csproj",
+      "projectPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Application.Tests\\AiIntelligence.Application.Tests.csproj",
       "packagesPath": "C:\\Users\\ajari_a\\.nuget\\packages\\",
-      "outputPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Application.Tests\\obj\\",
+      "outputPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Application.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -5849,8 +5849,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj": {
-              "projectPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj"
+            "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj": {
+              "projectPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj"
             }
           }
         }

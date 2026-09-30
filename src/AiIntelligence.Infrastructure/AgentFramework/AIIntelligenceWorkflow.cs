@@ -132,6 +132,7 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         var correlationCount = state.Correlations?.Count ?? 0;
         var insufficientCount = state.Correlations?.Count(correlation => correlation.Relationship == CorrelationRelationship.InsufficientEvidence) ?? 0;
         var personaCount = state.ReportDocument?.PersonaSections.Count;
+        var stageResults = BuildStageResults(state, correlationCount, insufficientCount, personaCount);
 
         return new AIIntelligenceWorkflowResult(
             state.StartedAt,
@@ -150,7 +151,107 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
             insufficientCount == 0 ? null : insufficientCount,
             personaCount,
             state.ReportPath,
-            state.StageErrors);
+            state.StageErrors,
+            stageResults);
+    }
+
+    private static IReadOnlyCollection<WorkflowStageResult> BuildStageResults(
+        WorkflowContextState state,
+        int correlationCount,
+        int insufficientCount,
+        int? personaCount)
+    {
+        return new[]
+        {
+            CreateStageResult(
+                "Ingestion",
+                state.IngestionResult is not null,
+                state.Options.RunIngestion,
+                state.StageErrors,
+                state.IngestionResult is null
+                    ? new Dictionary<string, string>()
+                    : new Dictionary<string, string>
+                    {
+                        ["Inserted"] = state.IngestionResult.InsertedCount.ToString(),
+                        ["Duplicates"] = state.IngestionResult.DuplicateCount.ToString(),
+                        ["Failures"] = state.IngestionResult.Failures.Count.ToString()
+                    }),
+            CreateStageResult(
+                "CurrentIntelligence",
+                state.CurrentAnalysisResult is not null,
+                state.Options.RunCurrentAnalysis,
+                state.StageErrors,
+                state.CurrentAnalysisResult is null
+                    ? new Dictionary<string, string>()
+                    : new Dictionary<string, string>
+                    {
+                        ["Processed"] = state.CurrentAnalysisResult.ProcessedCount.ToString(),
+                        ["Persisted"] = state.CurrentAnalysisResult.PersistedCount.ToString(),
+                        ["Irrelevant"] = state.CurrentAnalysisResult.IrrelevantCount.ToString()
+                    }),
+            CreateStageResult(
+                "TrendAnalysis",
+                state.TrendAnalysisResult is not null,
+                state.Options.RunTrendAnalysis,
+                state.StageErrors,
+                state.TrendAnalysisResult is null
+                    ? new Dictionary<string, string>()
+                    : new Dictionary<string, string>
+                    {
+                        ["Processed"] = state.TrendAnalysisResult.ProcessedCount.ToString(),
+                        ["Persisted"] = state.TrendAnalysisResult.PersistedCount.ToString(),
+                        ["Skipped"] = state.TrendAnalysisResult.SkippedNonTrendResearchCount.ToString()
+                    }),
+            CreateStageResult(
+                "Correlation",
+                state.Correlations is not null,
+                true,
+                state.StageErrors,
+                new Dictionary<string, string>
+                {
+                    ["Correlations"] = correlationCount.ToString(),
+                    ["InsufficientEvidence"] = insufficientCount.ToString()
+                }),
+            CreateStageResult(
+                "PersonaReport",
+                state.ReportDocument is not null,
+                state.Options.RunReportGeneration,
+                state.StageErrors,
+                new Dictionary<string, string>
+                {
+                    ["PersonaSections"] = (personaCount ?? 0).ToString()
+                }),
+            CreateStageResult(
+                "RenderReport",
+                !string.IsNullOrWhiteSpace(state.Markdown),
+                state.Options.RunReportGeneration,
+                state.StageErrors,
+                new Dictionary<string, string>
+                {
+                    ["ReportPath"] = state.ReportPath ?? ""
+                })
+        };
+    }
+
+    private static WorkflowStageResult CreateStageResult(
+        string stage,
+        bool hasResult,
+        bool wasEnabled,
+        IReadOnlyCollection<WorkflowStageError> errors,
+        IReadOnlyDictionary<string, string> metrics)
+    {
+        var status = errors.Any(error => string.Equals(error.Stage, stage, StringComparison.OrdinalIgnoreCase))
+            ? WorkflowStageStatus.Failed
+            : hasResult
+                ? WorkflowStageStatus.Completed
+                : wasEnabled
+                    ? WorkflowStageStatus.Failed
+                    : WorkflowStageStatus.Skipped;
+
+        var safeMetrics = metrics
+            .Where(pair => !string.IsNullOrWhiteSpace(pair.Value))
+            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
+        return new WorkflowStageResult(stage, status, safeMetrics);
     }
 
     private async ValueTask<WorkflowContextState> ExecuteIngestionAsync(
@@ -304,7 +405,11 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         try
         {
             var markdown = _renderReportTool.Execute(new RenderReportInput(state.ReportDocument));
-            return ValueTask.FromResult(state with { Markdown = markdown });
+            var outputDirectory = Path.Combine(Environment.CurrentDirectory, "output");
+            Directory.CreateDirectory(outputDirectory);
+            var outputFile = Path.Combine(outputDirectory, "ai-intelligence-report.md");
+            File.WriteAllText(outputFile, markdown);
+            return ValueTask.FromResult(state with { Markdown = markdown, ReportPath = outputFile });
         }
         catch (Exception exception)
         {
