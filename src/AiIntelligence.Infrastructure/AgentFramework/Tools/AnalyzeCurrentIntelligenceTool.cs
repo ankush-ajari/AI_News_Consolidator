@@ -2,7 +2,7 @@ using AiIntelligence.Application.Intelligence;
 
 namespace AiIntelligence.Infrastructure.AgentFramework.Tools;
 
-public sealed class AnalyzeCurrentIntelligenceTool
+public sealed class AnalyzeCurrentIntelligenceTool : IAnalyzeCurrentIntelligenceTool
 {
     private readonly IntelligenceAnalysisService _analysisService;
 

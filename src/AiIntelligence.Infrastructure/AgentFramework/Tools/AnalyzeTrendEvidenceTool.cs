@@ -2,7 +2,7 @@ using AiIntelligence.Application.Intelligence;
 
 namespace AiIntelligence.Infrastructure.AgentFramework.Tools;
 
-public sealed class AnalyzeTrendEvidenceTool
+public sealed class AnalyzeTrendEvidenceTool : IAnalyzeTrendEvidenceTool
 {
     private readonly TrendAnalysisService _trendAnalysisService;
 

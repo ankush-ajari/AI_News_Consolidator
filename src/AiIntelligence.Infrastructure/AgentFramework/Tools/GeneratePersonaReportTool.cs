@@ -3,7 +3,7 @@ using AiIntelligence.Domain.Models;
 
 namespace AiIntelligence.Infrastructure.AgentFramework.Tools;
 
-public sealed class GeneratePersonaReportTool
+public sealed class GeneratePersonaReportTool : IGeneratePersonaReportTool
 {
     private readonly IPersonaReportGenerator _reportGenerator;
 

@@ -3,7 +3,7 @@ using AiIntelligence.Domain.Models;
 
 namespace AiIntelligence.Infrastructure.AgentFramework.Tools;
 
-public sealed class IngestSourcesTool
+public sealed class IngestSourcesTool : IIngestSourcesTool
 {
     private readonly SourceIngestionService _sourceIngestionService;
 

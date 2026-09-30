@@ -2,7 +2,7 @@ using AiIntelligence.Application.Reporting;
 
 namespace AiIntelligence.Infrastructure.AgentFramework.Tools;
 
-public sealed class RenderReportTool
+public sealed class RenderReportTool : IRenderReportTool
 {
     private readonly MarkdownReportRenderer _renderer;
 

@@ -3,7 +3,7 @@ using AiIntelligence.Domain.Models;
 
 namespace AiIntelligence.Infrastructure.AgentFramework.Tools;
 
-public sealed class CorrelateCurrentDevelopmentTool
+public sealed class CorrelateCurrentDevelopmentTool : ICorrelateCurrentDevelopmentTool
 {
     private readonly ITrendCandidateSelector _candidateSelector;
     private readonly ITrendCorrelationService _correlationService;

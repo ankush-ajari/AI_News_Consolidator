@@ -3,6 +3,8 @@ using AiIntelligence.Application.Intelligence;
 using AiIntelligence.Application.Persistence;
 using AiIntelligence.Application.Reporting;
 using AiIntelligence.Application.Sources;
+using AiIntelligence.Infrastructure.AgentFramework;
+using AiIntelligence.Infrastructure.AgentFramework.Tools;
 using AiIntelligence.Infrastructure.Inspection;
 using AiIntelligence.Infrastructure.Intelligence;
 using AiIntelligence.Infrastructure.Maintenance;
@@ -58,6 +60,14 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IPersonaReportGenerator, LlmPersonaReportGenerator>();
         services.AddScoped<MarkdownReportRenderer>();
         services.AddScoped<ReportOrchestrationService>();
+
+        services.AddScoped<IIngestSourcesTool, IngestSourcesTool>();
+        services.AddScoped<IAnalyzeCurrentIntelligenceTool, AnalyzeCurrentIntelligenceTool>();
+        services.AddScoped<IAnalyzeTrendEvidenceTool, AnalyzeTrendEvidenceTool>();
+        services.AddScoped<ICorrelateCurrentDevelopmentTool, CorrelateCurrentDevelopmentTool>();
+        services.AddScoped<IGeneratePersonaReportTool, GeneratePersonaReportTool>();
+        services.AddScoped<IRenderReportTool, RenderReportTool>();
+        services.AddScoped<IAIIntelligenceWorkflow, AIIntelligenceWorkflow>();
 
         services.AddTransient<ISourceConnector, RssSourceConnector>();
         services.AddTransient<ISourceConnector, WebPageSourceConnector>();
