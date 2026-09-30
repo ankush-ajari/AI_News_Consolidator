@@ -1,0 +1,3 @@
+namespace AiIntelligence.Application.Intelligence;
+
+public sealed record TrendEvidenceExtractionBatch(IReadOnlyCollection<TrendEvidenceExtractionResult> Items);

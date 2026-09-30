@@ -1,0 +1,11 @@
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\bin\Debug\net8.0\AiIntelligence.Domain.deps.json
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\bin\Debug\net8.0\AiIntelligence.Domain.dll
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\bin\Debug\net8.0\AiIntelligence.Domain.pdb
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\AiIntelligence.Domain.GeneratedMSBuildEditorConfig.editorconfig
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\AiIntelligence.Domain.AssemblyInfoInputs.cache
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\AiIntelligence.Domain.AssemblyInfo.cs
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\AiIntelligence.Domain.csproj.CoreCompileInputs.cache
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\AiIntelligence.Domain.dll
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\refint\AiIntelligence.Domain.dll
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\AiIntelligence.Domain.pdb
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Domain\obj\Debug\net8.0\ref\AiIntelligence.Domain.dll
