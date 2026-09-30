@@ -1,7 +1,9 @@
 ﻿using AiIntelligence.Application.Intelligence;
 using AiIntelligence.Application.Reporting;
 using AiIntelligence.Application.Sources;
+using AiIntelligence.Console;
 using AiIntelligence.Domain.Enums;
+using AiIntelligence.Infrastructure.AgentFramework;
 using AiIntelligence.Infrastructure.Configuration;
 using AiIntelligence.Infrastructure.Inspection;
 using AiIntelligence.Infrastructure.Intelligence;
@@ -22,7 +24,7 @@ builder.Configuration
 
 builder.Services.AddSourceIngestionInfrastructure(builder.Configuration);
 
-if (args.Any(argument => string.Equals(argument, "--mock-llm", StringComparison.OrdinalIgnoreCase)))
+if (ConsoleCommandParser.HasFlag(args, "--mock-llm"))
 {
     builder.Services.AddScoped<ILLMClient, MockLlmClient>();
     builder.Services.AddScoped<ITrendCorrelationService, MockTrendCorrelationService>();
@@ -31,14 +33,14 @@ if (args.Any(argument => string.Equals(argument, "--mock-llm", StringComparison.
 
 using var host = builder.Build();
 
-if (args.Length == 0 || !IsSupportedCommand(args[0]))
+if (args.Length == 0 || !ConsoleCommandParser.IsSupportedCommand(args[0]))
 {
-    Console.WriteLine("Usage: dotnet run --project src/AiIntelligence.Console -- <fetch|ingest|analyze|analyze-trends|inspect|reset|report|test-llm> [sources|raw|trends|stats|analysis|intelligence] [options]");
+    Console.WriteLine("Usage: dotnet run --project src/AiIntelligence.Console -- <fetch|ingest|analyze|analyze-trends|inspect|reset|report|test-llm|run-workflow> [sources|raw|trends|stats|analysis|intelligence] [options]");
     return;
 }
 
 var command = args[0];
-var verbose = args.Any(argument => string.Equals(argument, "--verbose", StringComparison.OrdinalIgnoreCase));
+var verbose = ConsoleCommandParser.HasFlag(args, "--verbose");
 var logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("FetchCommand");
 
 if (string.Equals(command, "test-llm", StringComparison.OrdinalIgnoreCase))
@@ -53,8 +55,79 @@ if (string.Equals(command, "test-llm", StringComparison.OrdinalIgnoreCase))
     return;
 }
 
+if (string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase))
+{
+    await using var workflowScope = host.Services.CreateAsyncScope();
+    var dbContext = workflowScope.ServiceProvider.GetRequiredService<AiIntelligenceDbContext>();
+    await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+
+    var workflow = workflowScope.ServiceProvider.GetRequiredService<IAIIntelligenceWorkflow>();
+    var options = new AIIntelligenceWorkflowOptions
+    {
+        CurrentIntelligenceLimit = ConsoleCommandParser.GetIntOption(args, "--current-limit"),
+        TrendAnalysisLimit = ConsoleCommandParser.GetIntOption(args, "--trend-limit"),
+        Verbose = verbose,
+        MockLlm = ConsoleCommandParser.HasFlag(args, "--mock-llm"),
+        RunIngestion = !ConsoleCommandParser.HasFlag(args, "--skip-ingest")
+    };
+
+    var result = await workflow.RunReportAsync(options, CancellationToken.None).ConfigureAwait(false);
+
+    Console.WriteLine(result.Success
+        ? "Workflow completed successfully"
+        : "Workflow failed");
+    Console.WriteLine($"Started at: {result.StartedAt:O}");
+    Console.WriteLine($"Completed at: {result.CompletedAt:O}");
+
+    if (!string.IsNullOrWhiteSpace(result.IngestionSummary))
+    {
+        Console.WriteLine($"Ingestion: {result.IngestionSummary}");
+    }
+
+    if (!string.IsNullOrWhiteSpace(result.CurrentAnalysisSummary))
+    {
+        Console.WriteLine($"Current analysis: {result.CurrentAnalysisSummary}");
+    }
+
+    if (!string.IsNullOrWhiteSpace(result.TrendAnalysisSummary))
+    {
+        Console.WriteLine($"Trend analysis: {result.TrendAnalysisSummary}");
+    }
+
+    if (result.CorrelationCount.HasValue)
+    {
+        Console.WriteLine($"Correlations: {result.CorrelationCount}");
+    }
+
+    if (result.InsufficientEvidenceCount.HasValue)
+    {
+        Console.WriteLine($"Insufficient evidence correlations: {result.InsufficientEvidenceCount}");
+    }
+
+    if (result.PersonaSectionCount.HasValue)
+    {
+        Console.WriteLine($"Persona sections: {result.PersonaSectionCount}");
+    }
+
+    if (!string.IsNullOrWhiteSpace(result.ReportPath))
+    {
+        Console.WriteLine($"Report path: {result.ReportPath}");
+    }
+
+    if (result.StageErrors.Count > 0)
+    {
+        Console.WriteLine("Stage errors:");
+        foreach (var error in result.StageErrors)
+        {
+            Console.WriteLine($"- {error.Stage}: {error.ErrorType} - {error.Message}");
+        }
+    }
+
+    return;
+}
+
 var sourceDefinitions = SourceDefinitionConfigurationLoader.Load(builder.Configuration);
-var sourceFilter = GetStringOption(args, "--source");
+var sourceFilter = ConsoleCommandParser.GetStringOption(args, "--source");
 if (!string.IsNullOrWhiteSpace(sourceFilter)
     && (string.Equals(command, "fetch", StringComparison.OrdinalIgnoreCase)
         || string.Equals(command, "ingest", StringComparison.OrdinalIgnoreCase)))
@@ -110,7 +183,7 @@ try
         var analysisService = scope.ServiceProvider.GetRequiredService<IntelligenceAnalysisService>();
         var analysisResult = await analysisService.AnalyzeUnprocessedAsync(
             CancellationToken.None,
-            GetIntOption(args, "--limit"),
+            ConsoleCommandParser.GetIntOption(args, "--limit"),
             includeDiagnostics: verbose).ConfigureAwait(false);
         Console.WriteLine($"Processed count: {analysisResult.ProcessedCount}");
         Console.WriteLine($"Persisted count: {analysisResult.PersistedCount}");
@@ -215,7 +288,9 @@ try
         }
 
         var trendAnalysisService = scope.ServiceProvider.GetRequiredService<TrendAnalysisService>();
-        var trendResult = await trendAnalysisService.AnalyzeTrendResearchAsync(CancellationToken.None, GetIntOption(args, "--limit")).ConfigureAwait(false);
+        var trendResult = await trendAnalysisService.AnalyzeTrendResearchAsync(
+            CancellationToken.None,
+            ConsoleCommandParser.GetIntOption(args, "--limit")).ConfigureAwait(false);
         Console.WriteLine($"Processed count: {trendResult.ProcessedCount}");
         Console.WriteLine($"Persisted count: {trendResult.PersistedCount}");
         Console.WriteLine($"Skipped non-trend research count: {trendResult.SkippedNonTrendResearchCount}");
@@ -239,7 +314,10 @@ try
         }
 
         var reportService = scope.ServiceProvider.GetRequiredService<ReportOrchestrationService>();
-        var (reportResult, markdown) = await reportService.GenerateAsync(GetIntOption(args, "--limit"), verbose, CancellationToken.None).ConfigureAwait(false);
+        var (reportResult, markdown) = await reportService.GenerateAsync(
+            ConsoleCommandParser.GetIntOption(args, "--limit"),
+            verbose,
+            CancellationToken.None).ConfigureAwait(false);
         var outputDirectory = Path.Combine(Environment.CurrentDirectory, "output");
         Directory.CreateDirectory(outputDirectory);
         var outputFile = Path.Combine(outputDirectory, "ai-intelligence-report.md");
@@ -342,15 +420,15 @@ static async Task RunInspectAsync(
 
     if (string.Equals(target, "raw", StringComparison.OrdinalIgnoreCase))
     {
-        var sourceClass = GetStringOption(args, "--class") is { } classText
+        var sourceClass = ConsoleCommandParser.GetStringOption(args, "--class") is { } classText
             && Enum.TryParse<SourceClass>(classText, ignoreCase: true, out var parsedClass)
                 ? parsedClass
                 : (SourceClass?)null;
         var rows = await inspectionService.GetRawAsync(new RawInspectionFilter(
-            GetIntOption(args, "--limit") ?? 20,
-            GetStringOption(args, "--source"),
+            ConsoleCommandParser.GetIntOption(args, "--limit") ?? 20,
+            ConsoleCommandParser.GetStringOption(args, "--source"),
             sourceClass,
-            GetIntOption(args, "--min-length")), cancellationToken).ConfigureAwait(false);
+            ConsoleCommandParser.GetIntOption(args, "--min-length")), cancellationToken).ConfigureAwait(false);
 
         foreach (var row in rows)
         {
@@ -373,9 +451,9 @@ static async Task RunInspectAsync(
     if (string.Equals(target, "trends", StringComparison.OrdinalIgnoreCase))
     {
         var rows = await inspectionService.GetTrendsAsync(new TrendInspectionFilter(
-            GetIntOption(args, "--limit") ?? 20,
-            GetStringOption(args, "--source"),
-            GetStringOption(args, "--topic")), cancellationToken).ConfigureAwait(false);
+            ConsoleCommandParser.GetIntOption(args, "--limit") ?? 20,
+            ConsoleCommandParser.GetStringOption(args, "--source"),
+            ConsoleCommandParser.GetStringOption(args, "--topic")), cancellationToken).ConfigureAwait(false);
 
         foreach (var row in rows)
         {
@@ -478,34 +556,4 @@ static async Task RunResetAsync(string[] args, MaintenanceResetService resetServ
     Console.WriteLine("Unknown reset target. Use trends, intelligence, analysis, or invalid-intelligence.");
 }
 
-static int? GetIntOption(string[] args, string optionName)
-{
-    var value = GetStringOption(args, optionName);
-    return int.TryParse(value, out var parsed) ? parsed : null;
-}
-
-static string? GetStringOption(string[] args, string optionName)
-{
-    for (var index = 0; index < args.Length - 1; index++)
-    {
-        if (string.Equals(args[index], optionName, StringComparison.OrdinalIgnoreCase))
-        {
-            return args[index + 1];
-        }
-    }
-
-    return null;
-}
-
-static bool IsSupportedCommand(string command)
-{
-    return string.Equals(command, "fetch", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "ingest", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "analyze", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "analyze-trends", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "inspect", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "reset", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "report", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "test-llm", StringComparison.OrdinalIgnoreCase);
-}
 

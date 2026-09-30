@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AiIntelligence.Infrastructure\AiIntelligence.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\AiIntelligence.Console\AiIntelligence.Console.csproj" />
   </ItemGroup>
 
 </Project>
