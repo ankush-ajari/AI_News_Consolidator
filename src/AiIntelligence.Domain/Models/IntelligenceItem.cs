@@ -13,6 +13,7 @@ public sealed class IntelligenceItem
         Summary = string.Empty;
         Capabilities = Array.Empty<string>();
         Limitations = Array.Empty<string>();
+        ConceptTags = Array.Empty<AIConceptTag>();
         ReleaseStage = string.Empty;
         SourceUrl = new Uri("about:blank");
     }
@@ -30,7 +31,8 @@ public sealed class IntelligenceItem
         string releaseStage,
         SourceClass sourceClass,
         DateTimeOffset? publishedAt,
-        Uri sourceUrl)
+        Uri sourceUrl,
+        IReadOnlyCollection<AIConceptTag>? conceptTags = null)
     {
         if (id == Guid.Empty)
         {
@@ -70,6 +72,7 @@ public sealed class IntelligenceItem
         SourceClass = sourceClass;
         PublishedAt = publishedAt;
         SourceUrl = sourceUrl ?? throw new ArgumentNullException(nameof(sourceUrl));
+        ConceptTags = conceptTags?.Distinct().ToArray() ?? Array.Empty<AIConceptTag>();
     }
 
     public Guid Id { get; private set; }
@@ -90,7 +93,14 @@ public sealed class IntelligenceItem
 
     public IReadOnlyCollection<string> Limitations { get; private set; }
 
+    public IReadOnlyCollection<AIConceptTag> ConceptTags { get; private set; }
+
     public string ReleaseStage { get; private set; }
+
+    public void UpdateConceptTags(IReadOnlyCollection<AIConceptTag> conceptTags)
+    {
+        ConceptTags = conceptTags?.Distinct().ToArray() ?? Array.Empty<AIConceptTag>();
+    }
 
     public SourceClass SourceClass { get; private set; }
 

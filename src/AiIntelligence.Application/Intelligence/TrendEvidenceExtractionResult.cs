@@ -11,4 +11,5 @@ public sealed record TrendEvidenceExtractionResult(
     string EvidenceSummary,
     decimal Confidence,
     Uri SourceUrl,
-    string PublicationName);
+    string PublicationName,
+    IReadOnlyCollection<AIConceptTag> ConceptTags);

@@ -9,7 +9,14 @@ public interface IRawSourceRepository
         string contentHash,
         CancellationToken cancellationToken);
 
+    Task<RawSourceItem?> FindBySourceDefinitionAndCanonicalUrlAsync(
+        Guid sourceDefinitionId,
+        string canonicalUrl,
+        CancellationToken cancellationToken);
+
     Task AddAsync(RawSourceItem item, CancellationToken cancellationToken);
+
+    Task UpdateAsync(RawSourceItem item, CancellationToken cancellationToken);
 
     Task<IReadOnlyCollection<RawSourceItem>> ListAsync(CancellationToken cancellationToken);
 

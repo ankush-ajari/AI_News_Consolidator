@@ -31,6 +31,14 @@ public sealed class ConsoleProgramLlmModeTests
     }
 
     [Fact]
+    public void MockLlmFlag_DoesNotRequireApiKey()
+    {
+        var mode = ConsoleLlmModeDecider.ShouldUseMock("analyze", mockFlag: true, hasApiKey: false);
+
+        Assert.True(mode);
+    }
+
+    [Fact]
     public async Task AnalyzeWithoutMock_FailsWhenApiKeyMissing()
     {
         var services = BuildServices(new Dictionary<string, string?>

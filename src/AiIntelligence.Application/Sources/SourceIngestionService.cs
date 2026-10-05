@@ -133,27 +133,76 @@ public sealed class SourceIngestionService
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var canonicalUrl = CanonicalUrlNormalizer.Normalize(item.Url);
             _logger.LogInformation(
-                "Evaluating raw item persistence. SourceClass: {SourceClass}; SourceDefinitionId: {SourceDefinitionId}; Url: {Url}; ContentHash: {ContentHash}",
+                "Evaluating raw item persistence. SourceClass: {SourceClass}; SourceDefinitionId: {SourceDefinitionId}; Url: {Url}; CanonicalUrl: {CanonicalUrl}; ContentHash: {ContentHash}",
                 item.SourceClass,
                 item.SourceDefinitionId,
                 item.Url,
+                canonicalUrl,
                 item.ContentHash.Value);
 
-            var existingItem = await _rawSourceRepository.FindByCanonicalUrlAndHashAsync(
-                item.CanonicalUrl,
+            if (item.SourceClass == Domain.Enums.SourceClass.TrendResearch)
+            {
+                var existingItem = await _rawSourceRepository.FindBySourceDefinitionAndCanonicalUrlAsync(
+                    item.SourceDefinitionId,
+                    canonicalUrl,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (existingItem is not null)
+                {
+                    if (RawContentComparer.IsMateriallyDifferent(existingItem.RawContent, item.RawContent))
+                    {
+                        existingItem.UpdateContent(
+                            item.Title,
+                            item.Url,
+                            item.PublishedAt,
+                            item.FetchedAt,
+                            item.RawContent,
+                            item.EnrichedContent,
+                            item.ContentHash,
+                            item.ContentSourceUrls);
+                        await _rawSourceRepository.UpdateAsync(existingItem, cancellationToken).ConfigureAwait(false);
+                        insertedCount++;
+                        _logger.LogInformation(
+                            "Raw item update decision. Decision: Update; SourceClass: {SourceClass}; SourceDefinitionId: {SourceDefinitionId}; Url: {Url}; CanonicalUrl: {CanonicalUrl}; ContentHash: {ContentHash}",
+                            item.SourceClass,
+                            item.SourceDefinitionId,
+                            item.Url,
+                            canonicalUrl,
+                            item.ContentHash.Value);
+                    }
+                    else
+                    {
+                        duplicateCount++;
+                        _logger.LogInformation(
+                            "Raw item duplicate decision. Decision: Duplicate; SourceClass: {SourceClass}; SourceDefinitionId: {SourceDefinitionId}; Url: {Url}; CanonicalUrl: {CanonicalUrl}; ContentHash: {ContentHash}",
+                            item.SourceClass,
+                            item.SourceDefinitionId,
+                            item.Url,
+                            canonicalUrl,
+                            item.ContentHash.Value);
+                    }
+
+                    continue;
+                }
+            }
+
+            var existingByHash = await _rawSourceRepository.FindByCanonicalUrlAndHashAsync(
+                canonicalUrl,
                 item.ContentHash.Value,
                 cancellationToken).ConfigureAwait(false);
 
-            if (existingItem is not null)
+            if (existingByHash is not null)
             {
                 duplicateCount++;
                 _logger.LogInformation(
-                    "Raw item duplicate decision. Decision: Duplicate; SourceClass: {SourceClass}; SourceDefinitionId: {SourceDefinitionId}; ExistingSourceDefinitionId: {ExistingSourceDefinitionId}; Url: {Url}; ContentHash: {ContentHash}",
+                    "Raw item duplicate decision. Decision: Duplicate; SourceClass: {SourceClass}; SourceDefinitionId: {SourceDefinitionId}; ExistingSourceDefinitionId: {ExistingSourceDefinitionId}; Url: {Url}; CanonicalUrl: {CanonicalUrl}; ContentHash: {ContentHash}",
                     item.SourceClass,
                     item.SourceDefinitionId,
-                    existingItem.SourceDefinitionId,
+                    existingByHash.SourceDefinitionId,
                     item.Url,
+                    canonicalUrl,
                     item.ContentHash.Value);
                 continue;
             }
@@ -161,10 +210,11 @@ public sealed class SourceIngestionService
             await _rawSourceRepository.AddAsync(item, cancellationToken).ConfigureAwait(false);
             insertedCount++;
             _logger.LogInformation(
-                "Raw item insert decision. Decision: Insert; SourceClass: {SourceClass}; SourceDefinitionId: {SourceDefinitionId}; Url: {Url}; ContentHash: {ContentHash}",
+                "Raw item insert decision. Decision: Insert; SourceClass: {SourceClass}; SourceDefinitionId: {SourceDefinitionId}; Url: {Url}; CanonicalUrl: {CanonicalUrl}; ContentHash: {ContentHash}",
                 item.SourceClass,
                 item.SourceDefinitionId,
                 item.Url,
+                canonicalUrl,
                 item.ContentHash.Value);
         }
 

@@ -10,6 +10,7 @@ public sealed class IntelligenceAnalysisService
     private readonly ISourceDefinitionRepository _sourceDefinitionRepository;
     private readonly IIntelligenceRepository _intelligenceRepository;
     private readonly IIntelligenceExtractor _extractor;
+    private readonly IAIConceptClassifier _conceptClassifier;
     private readonly ILogger<IntelligenceAnalysisService> _logger;
 
     public IntelligenceAnalysisService(
@@ -18,11 +19,23 @@ public sealed class IntelligenceAnalysisService
         IIntelligenceRepository intelligenceRepository,
         IIntelligenceExtractor extractor,
         ILogger<IntelligenceAnalysisService> logger)
+        : this(rawSourceRepository, sourceDefinitionRepository, intelligenceRepository, extractor, new DeterministicAIConceptClassifier(), logger)
+    {
+    }
+
+    public IntelligenceAnalysisService(
+        IRawSourceRepository rawSourceRepository,
+        ISourceDefinitionRepository sourceDefinitionRepository,
+        IIntelligenceRepository intelligenceRepository,
+        IIntelligenceExtractor extractor,
+        IAIConceptClassifier conceptClassifier,
+        ILogger<IntelligenceAnalysisService> logger)
     {
         _rawSourceRepository = rawSourceRepository;
         _sourceDefinitionRepository = sourceDefinitionRepository;
         _intelligenceRepository = intelligenceRepository;
         _extractor = extractor;
+        _conceptClassifier = conceptClassifier;
         _logger = logger;
     }
 
@@ -140,6 +153,13 @@ public sealed class IntelligenceAnalysisService
                     _logger.LogWarning("Missing source definition for raw source item {SourceItemId}; using source class {SourceClass}.", candidate.RawItem.Id, candidate.RawItem.SourceClass);
                 }
 
+                var conceptTags = _conceptClassifier.Classify(
+                    candidate.RawItem.Title,
+                    extraction.Topic,
+                    extraction.Category,
+                    extraction.ProductOrFramework,
+                    extraction.Summary);
+
                 var intelligenceItem = new IntelligenceItem(
                     Guid.NewGuid(),
                     candidate.RawItem.Id,
@@ -153,7 +173,8 @@ public sealed class IntelligenceAnalysisService
                     extraction.ReleaseStage,
                     candidate.SourceDefinition?.SourceClass ?? candidate.RawItem.SourceClass,
                     candidate.RawItem.PublishedAt,
-                    candidate.RawItem.Url);
+                    candidate.RawItem.Url,
+                    conceptTags);
 
                 await _intelligenceRepository.AddAsync(intelligenceItem, cancellationToken).ConfigureAwait(false);
                 persistedCount++;

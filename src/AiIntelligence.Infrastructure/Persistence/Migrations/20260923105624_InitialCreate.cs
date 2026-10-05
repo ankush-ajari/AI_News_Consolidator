@@ -109,6 +109,11 @@ namespace AiIntelligence.Infrastructure.Persistence.Migrations
                 column: "SourceDefinitionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RawSourceItems_SourceDefinitionId_CanonicalUrl",
+                table: "RawSourceItems",
+                columns: new[] { "SourceDefinitionId", "CanonicalUrl" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SourceDefinitions_Name",
                 table: "SourceDefinitions",
                 column: "Name",

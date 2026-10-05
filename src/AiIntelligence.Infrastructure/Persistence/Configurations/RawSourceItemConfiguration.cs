@@ -29,6 +29,7 @@ public sealed class RawSourceItemConfiguration : IEntityTypeConfiguration<RawSou
             .HasColumnType("TEXT")
             .Metadata.SetValueComparer(UriCollectionComparer.Instance);
         builder.HasIndex(item => new { item.CanonicalUrl, item.ContentHash }).IsUnique();
+        builder.HasIndex(item => new { item.SourceDefinitionId, item.CanonicalUrl });
         builder.HasOne<SourceDefinition>()
             .WithMany()
             .HasForeignKey(item => item.SourceDefinitionId)

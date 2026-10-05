@@ -28,6 +28,7 @@ public sealed class IntelligenceAnalysisServiceTests
             new SourceDefinitionRepository(fixture.DbContext),
             new IntelligenceRepository(fixture.DbContext),
             new StubExtractor(rawItem => rawItem.Id == relevant.Id),
+            new DeterministicAIConceptClassifier(),
             NullLogger<IntelligenceAnalysisService>.Instance);
 
         var result = await service.AnalyzeUnprocessedAsync(CancellationToken.None);
@@ -56,6 +57,7 @@ public sealed class IntelligenceAnalysisServiceTests
             new SourceDefinitionRepository(fixture.DbContext),
             new IntelligenceRepository(fixture.DbContext),
             new StubExtractor(_ => true),
+            new DeterministicAIConceptClassifier(),
             NullLogger<IntelligenceAnalysisService>.Instance);
 
         var result = await service.AnalyzeUnprocessedAsync(CancellationToken.None);
@@ -87,6 +89,7 @@ public sealed class IntelligenceAnalysisServiceTests
             new SourceDefinitionRepository(fixture.DbContext),
             new IntelligenceRepository(fixture.DbContext),
             new StubExtractor(_ => true),
+            new DeterministicAIConceptClassifier(),
             NullLogger<IntelligenceAnalysisService>.Instance);
 
         var result = await service.AnalyzeUnprocessedAsync(CancellationToken.None, limit: 1);

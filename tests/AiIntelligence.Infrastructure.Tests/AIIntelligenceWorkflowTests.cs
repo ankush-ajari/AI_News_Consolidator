@@ -47,7 +47,7 @@ public sealed class AIIntelligenceWorkflowTests
             .Returns(call =>
             {
                 sequence.Add("trend-analysis");
-                return new TrendAnalysisResult(1, 1, 0, 0);
+                return new TrendAnalysisResult(1, 1, 0, 0, 0, 0);
             });
         correlationTool.ExecuteAsync(Arg.Any<CorrelateCurrentDevelopmentInput>(), Arg.Any<CancellationToken>())
             .Returns(call =>

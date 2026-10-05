@@ -12,6 +12,8 @@ public sealed class TrendEvidence
         QuantitativeEvidence = string.Empty;
         EvidenceSummary = string.Empty;
         PublicationName = string.Empty;
+        ConceptTags = Array.Empty<AIConceptTag>();
+        TrendFamily = TrendFamily.Unknown;
         SourceUrl = new Uri("about:blank");
     }
 
@@ -26,7 +28,8 @@ public sealed class TrendEvidence
         decimal confidence,
         Uri sourceUrl,
         string quantitativeEvidence = "",
-        string publicationName = "")
+        string publicationName = "",
+        IReadOnlyCollection<AIConceptTag>? conceptTags = null)
     {
         if (id == Guid.Empty)
         {
@@ -64,6 +67,8 @@ public sealed class TrendEvidence
         Confidence = confidence;
         SourceUrl = sourceUrl ?? throw new ArgumentNullException(nameof(sourceUrl));
         PublicationName = publicationName.TrimOrEmpty();
+        ConceptTags = conceptTags?.Distinct().ToArray() ?? Array.Empty<AIConceptTag>();
+        TrendFamily = TrendFamily.Unknown;
     }
 
     public Guid Id { get; private set; }
@@ -82,7 +87,21 @@ public sealed class TrendEvidence
 
     public string EvidenceSummary { get; private set; }
 
+    public IReadOnlyCollection<AIConceptTag> ConceptTags { get; private set; }
+
+    public TrendFamily TrendFamily { get; private set; }
+
     public decimal Confidence { get; private set; }
+
+    public void UpdateConceptTags(IReadOnlyCollection<AIConceptTag> conceptTags)
+    {
+        ConceptTags = conceptTags?.Distinct().ToArray() ?? Array.Empty<AIConceptTag>();
+    }
+
+    public void UpdateTrendFamily(TrendFamily trendFamily)
+    {
+        TrendFamily = trendFamily;
+    }
 
     public Uri SourceUrl { get; private set; }
 

@@ -4358,11 +4358,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Console\\AiIntelligence.Console.csproj",
+      "projectUniqueName": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Console\\AiIntelligence.Console.csproj",
       "projectName": "AiIntelligence.Console",
-      "projectPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Console\\AiIntelligence.Console.csproj",
+      "projectPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Console\\AiIntelligence.Console.csproj",
       "packagesPath": "C:\\Users\\ajari_a\\.nuget\\packages\\",
-      "outputPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Console\\obj\\",
+      "outputPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Console\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -4384,11 +4384,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj": {
-              "projectPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj"
+            "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj": {
+              "projectPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj"
             },
-            "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj": {
-              "projectPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj"
+            "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj": {
+              "projectPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj"
             },
             "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Infrastructure\\AiIntelligence.Infrastructure.csproj": {
               "projectPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Infrastructure\\AiIntelligence.Infrastructure.csproj"

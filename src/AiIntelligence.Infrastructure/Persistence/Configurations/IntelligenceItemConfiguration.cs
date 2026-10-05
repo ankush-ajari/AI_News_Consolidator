@@ -1,4 +1,5 @@
 using System.Text.Json;
+using AiIntelligence.Domain.Enums;
 using AiIntelligence.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -32,5 +33,11 @@ public sealed class IntelligenceItemConfiguration : IEntityTypeConfiguration<Int
                 value => JsonSerializer.Deserialize<IReadOnlyCollection<string>>(value, (JsonSerializerOptions?)null) ?? Array.Empty<string>())
             .HasColumnType("TEXT")
             .Metadata.SetValueComparer(StringCollectionComparer.Instance);
+        builder.Property(item => item.ConceptTags)
+            .HasConversion(
+                value => JsonSerializer.Serialize(value, (JsonSerializerOptions?)null),
+                value => JsonSerializer.Deserialize<IReadOnlyCollection<AIConceptTag>>(value, (JsonSerializerOptions?)null) ?? Array.Empty<AIConceptTag>())
+            .HasColumnType("TEXT")
+            .Metadata.SetValueComparer(EnumCollectionComparer<AIConceptTag>.Instance);
     }
 }

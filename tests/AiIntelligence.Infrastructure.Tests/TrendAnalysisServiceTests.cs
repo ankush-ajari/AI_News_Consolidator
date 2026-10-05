@@ -34,7 +34,7 @@ public sealed class TrendAnalysisServiceTests
     public async Task AnalyzeTrendResearchAsync_PersistsTrendResearchEvidenceWithProvenance()
     {
         await using var fixture = await SqliteFixture.CreateAsync();
-        var source = CreateSource(SourceClass.TrendResearch);
+        var source = CreateSource(SourceClass.TrendResearch, name: "Stanford AI Index 2026 - Economy", url: "https://hai.stanford.edu/ai-index/2026-ai-index-report/economy");
         var rawItem = CreateRawItem(source.Id, "Trend report says AI adoption increased by 42% in 2026.");
         fixture.DbContext.SourceDefinitions.Add(source);
         fixture.DbContext.RawSourceItems.Add(rawItem);
@@ -53,6 +53,7 @@ public sealed class TrendAnalysisServiceTests
         Assert.Equal("42%", evidence.QuantitativeEvidence);
         Assert.Equal("Stanford AI Index", evidence.PublicationName);
         Assert.Equal(new Uri("https://example.com/report"), evidence.SourceUrl);
+        Assert.Equal(TrendFamily.OrganizationalAIAdoption, evidence.TrendFamily);
     }
 
     [Fact]
@@ -77,7 +78,7 @@ public sealed class TrendAnalysisServiceTests
     public async Task AnalyzeTrendResearchAsync_PersistsMultipleTrendEvidenceForOneRawSourceItem()
     {
         await using var fixture = await SqliteFixture.CreateAsync();
-        var source = CreateSource(SourceClass.TrendResearch);
+        var source = CreateSource(SourceClass.TrendResearch, name: "Stanford AI Index 2026 - Economy", url: "https://hai.stanford.edu/ai-index/2026-ai-index-report/economy");
         var rawItem = CreateRawItem(source.Id, "Trend report has multiple trend statements.");
         fixture.DbContext.SourceDefinitions.Add(source);
         fixture.DbContext.RawSourceItems.Add(rawItem);
@@ -92,6 +93,7 @@ public sealed class TrendAnalysisServiceTests
         var evidence = await fixture.DbContext.TrendEvidence.ToArrayAsync();
         Assert.Equal(2, evidence.Length);
         Assert.All(evidence, item => Assert.Equal(rawItem.Id, item.SourceItemId));
+        Assert.Contains(evidence, item => item.TrendFamily == TrendFamily.OrganizationalAIAdoption);
     }
 
     [Fact]
@@ -225,7 +227,8 @@ public sealed class TrendAnalysisServiceTests
                     "The publication reported an adoption trend.",
                     0.8m,
                     new Uri("https://example.com/report"),
-                    "Stanford AI Index"))
+                    "Stanford AI Index",
+                    Array.Empty<AIConceptTag>()))
                 .ToArray();
 
             return Task.FromResult(new TrendEvidenceExtractionBatch(items));

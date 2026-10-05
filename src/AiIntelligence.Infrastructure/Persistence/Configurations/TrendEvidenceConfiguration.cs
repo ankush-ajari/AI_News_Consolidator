@@ -1,3 +1,5 @@
+using System.Text.Json;
+using AiIntelligence.Domain.Enums;
 using AiIntelligence.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -17,9 +19,16 @@ public sealed class TrendEvidenceConfiguration : IEntityTypeConfiguration<TrendE
         builder.Property(item => item.Finding).IsRequired();
         builder.Property(item => item.QuantitativeEvidence).IsRequired();
         builder.Property(item => item.EvidenceSummary).IsRequired();
+        builder.Property(item => item.TrendFamily).HasMaxLength(50).IsRequired();
         builder.Property(item => item.Confidence).HasPrecision(5, 4).IsRequired();
         builder.Property(item => item.SourceUrl).HasConversion(uri => uri.AbsoluteUri, value => new Uri(value)).HasMaxLength(2048).IsRequired();
         builder.Property(item => item.PublicationName).HasMaxLength(300).IsRequired();
+        builder.Property(item => item.ConceptTags)
+            .HasConversion(
+                value => JsonSerializer.Serialize(value, (JsonSerializerOptions?)null),
+                value => JsonSerializer.Deserialize<IReadOnlyCollection<AIConceptTag>>(value, (JsonSerializerOptions?)null) ?? Array.Empty<AIConceptTag>())
+            .HasColumnType("TEXT")
+            .Metadata.SetValueComparer(EnumCollectionComparer<AIConceptTag>.Instance);
         builder.HasOne<RawSourceItem>()
             .WithMany()
             .HasForeignKey(item => item.SourceItemId)

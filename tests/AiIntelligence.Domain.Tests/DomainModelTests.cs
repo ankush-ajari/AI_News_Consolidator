@@ -79,7 +79,8 @@ public sealed class DomainModelTests
             "Preview",
             SourceClass.CurrentOfficial,
             DateTimeOffset.UtcNow,
-            sourceUrl);
+            sourceUrl,
+            new[] { AIConceptTag.AgenticAI });
 
         Assert.Equal("OpenAI", item.Vendor);
         Assert.Equal("Agent tooling", item.Topic);
@@ -102,7 +103,8 @@ public sealed class DomainModelTests
             "Adoption increased.",
             "Survey evidence.",
             confidence,
-            new Uri("https://example.com/research")));
+            new Uri("https://example.com/research"),
+            conceptTags: new[] { AIConceptTag.AIInvestment }));
 
         Assert.Equal("confidence", exception.ParamName);
     }

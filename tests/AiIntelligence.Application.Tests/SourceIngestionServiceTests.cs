@@ -52,8 +52,12 @@ public sealed class SourceIngestionServiceTests
         rssConnector.SourceType.Returns(SourceType.Rss);
         rssConnector.FetchAsync(discovery, Arg.Any<CancellationToken>()).Returns(new[] { CreateRawSourceItem(discovery) });
         var rawRepository = Substitute.For<IRawSourceRepository>();
+        rawRepository.FindBySourceDefinitionAndCanonicalUrlAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns((RawSourceItem?)null);
         rawRepository.FindByCanonicalUrlAndHashAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns((RawSourceItem?)null);
+        rawRepository.UpdateAsync(Arg.Any<RawSourceItem>(), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
         var sourceRepository = Substitute.For<ISourceDefinitionRepository>();
         var service = new SourceIngestionService(
             new SourceConnectorFactory(new[] { webConnector, rssConnector }),
@@ -81,8 +85,12 @@ public sealed class SourceIngestionServiceTests
         webConnector.SourceType.Returns(SourceType.WebPage);
         webConnector.FetchAsync(trend, Arg.Any<CancellationToken>()).Returns(new[] { CreateRawSourceItem(trend) });
         var rawRepository = Substitute.For<IRawSourceRepository>();
+        rawRepository.FindBySourceDefinitionAndCanonicalUrlAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns((RawSourceItem?)null);
         rawRepository.FindByCanonicalUrlAndHashAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns((RawSourceItem?)null);
+        rawRepository.UpdateAsync(Arg.Any<RawSourceItem>(), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
         var service = new SourceIngestionService(
             new SourceConnectorFactory(new[] { webConnector }),
             rawRepository,
@@ -118,8 +126,12 @@ public sealed class SourceIngestionServiceTests
         connector.FetchAsync(first, Arg.Any<CancellationToken>()).Returns(new[] { firstItem });
         connector.FetchAsync(second, Arg.Any<CancellationToken>()).Returns(new[] { secondItem });
         var rawRepository = Substitute.For<IRawSourceRepository>();
+        rawRepository.FindBySourceDefinitionAndCanonicalUrlAsync(Arg.Any<Guid>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns((RawSourceItem?)null, (RawSourceItem?)null);
         rawRepository.FindByCanonicalUrlAndHashAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns((RawSourceItem?)null, firstItem);
+        rawRepository.UpdateAsync(Arg.Any<RawSourceItem>(), Arg.Any<CancellationToken>())
+            .Returns(Task.CompletedTask);
         var service = new SourceIngestionService(
             new SourceConnectorFactory(new[] { connector }),
             rawRepository,

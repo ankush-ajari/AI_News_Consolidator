@@ -25,9 +25,25 @@ public sealed class RawSourceRepository : IRawSourceRepository
             cancellationToken);
     }
 
+    public Task<RawSourceItem?> FindBySourceDefinitionAndCanonicalUrlAsync(
+        Guid sourceDefinitionId,
+        string canonicalUrl,
+        CancellationToken cancellationToken)
+    {
+        return _dbContext.RawSourceItems.FirstOrDefaultAsync(
+            item => item.SourceDefinitionId == sourceDefinitionId && item.CanonicalUrl == canonicalUrl,
+            cancellationToken);
+    }
+
     public async Task AddAsync(RawSourceItem item, CancellationToken cancellationToken)
     {
         await _dbContext.RawSourceItems.AddAsync(item, cancellationToken).ConfigureAwait(false);
+    }
+
+    public Task UpdateAsync(RawSourceItem item, CancellationToken cancellationToken)
+    {
+        _dbContext.RawSourceItems.Update(item);
+        return Task.CompletedTask;
     }
 
     public async Task<IReadOnlyCollection<RawSourceItem>> ListAsync(CancellationToken cancellationToken)

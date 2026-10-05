@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "JxOaNLXkyoL0/hIyraLCRLQi25Kk7ReMSMOn09ldZfwMwisnabTUN3ChGadQa0KCkAejrHbj57LshU33tds04g==",
+  "dgSpecHash": "1zuaVdt2kuo8B0j6eh2spo5wJ5TnPz1Zq11vjpWKtImUeFs0ME/5zaejX05JNPDewrxjvJ+ZFwAj6JUWYT3V6Q==",
   "success": true,
-  "projectFilePath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj",
+  "projectFilePath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ajari_a\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.12\\microsoft.extensions.dependencyinjection.abstractions.10.0.12.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.12\\microsoft.extensions.logging.abstractions.10.0.12.nupkg.sha512",

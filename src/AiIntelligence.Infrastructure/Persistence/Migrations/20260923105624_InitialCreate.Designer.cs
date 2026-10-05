@@ -135,6 +135,8 @@ namespace AiIntelligence.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SourceDefinitionId");
 
+                    b.HasIndex("SourceDefinitionId", "CanonicalUrl");
+
                     b.HasIndex("CanonicalUrl", "ContentHash")
                         .IsUnique();
 

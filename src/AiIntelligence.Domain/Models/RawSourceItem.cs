@@ -61,6 +61,27 @@ public sealed class RawSourceItem
         SourceClass = sourceClass;
     }
 
+    public void UpdateContent(
+        string title,
+        Uri url,
+        DateTimeOffset? publishedAt,
+        DateTimeOffset fetchedAt,
+        string rawContent,
+        string enrichedContent,
+        ContentHash contentHash,
+        IReadOnlyCollection<Uri> contentSourceUrls)
+    {
+        Title = title.Trim();
+        Url = url;
+        CanonicalUrl = CanonicalUrlNormalizer.Normalize(url);
+        PublishedAt = publishedAt;
+        FetchedAt = fetchedAt;
+        RawContent = rawContent;
+        EnrichedContent = enrichedContent;
+        ContentHash = contentHash;
+        ContentSourceUrls = contentSourceUrls.ToArray();
+    }
+
     public Guid Id { get; private set; }
 
     public Guid SourceDefinitionId { get; private set; }

@@ -13,7 +13,7 @@ public sealed class ConsoleCommandParserTests
     [Fact]
     public void IsSupportedCommand_PreservesExistingCommands()
     {
-        var commands = new[] { "fetch", "ingest", "analyze", "analyze-trends", "inspect", "reset", "report", "test-llm" };
+        var commands = new[] { "fetch", "ingest", "analyze", "analyze-trends", "inspect", "reset", "report", "test-llm", "backfill-concepts" };
 
         foreach (var command in commands)
         {

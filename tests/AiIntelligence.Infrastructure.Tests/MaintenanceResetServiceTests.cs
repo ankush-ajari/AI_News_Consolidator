@@ -125,8 +125,8 @@ public sealed class MaintenanceResetServiceTests
     {
         var source = new SourceDefinition(Guid.NewGuid(), "Source", "Vendor", SourceType.WebPage, SourceClass.TrendResearch, new Uri("https://example.com"), true);
         var raw = new RawSourceItem(Guid.NewGuid(), source.Id, "Raw", new Uri("https://example.com/raw"), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, "raw content", new ContentHash("hash"), sourceClass: source.SourceClass);
-        var intelligence = new IntelligenceItem(Guid.NewGuid(), raw.Id, "Vendor", "Topic", "Category", "Framework", "Summary", Array.Empty<string>(), Array.Empty<string>(), "Unknown", SourceClass.TrendResearch, DateTimeOffset.UtcNow, raw.Url);
-        var trend = new TrendEvidence(Guid.NewGuid(), raw.Id, "Topic", "2026", TrendEvidencePeriodProvenance.SourceContent, "Finding", "Evidence", 0.8m, raw.Url, "42%", "Publication");
+        var intelligence = new IntelligenceItem(Guid.NewGuid(), raw.Id, "Vendor", "Topic", "Category", "Framework", "Summary", Array.Empty<string>(), Array.Empty<string>(), "Unknown", SourceClass.TrendResearch, DateTimeOffset.UtcNow, raw.Url, new[] { AIConceptTag.ModelCapability });
+        var trend = new TrendEvidence(Guid.NewGuid(), raw.Id, "Topic", "2026", TrendEvidencePeriodProvenance.SourceContent, "Finding", "Evidence", 0.8m, raw.Url, "42%", "Publication", new[] { AIConceptTag.ModelCapability });
 
         fixture.DbContext.SourceDefinitions.Add(source);
         fixture.DbContext.RawSourceItems.Add(raw);
@@ -145,11 +145,11 @@ public sealed class MaintenanceResetServiceTests
         var trendRaw = new RawSourceItem(Guid.NewGuid(), trendSource.Id, "Trend Raw", new Uri("https://example.com/trend/raw"), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, "trend", new ContentHash("trend"), sourceClass: trendSource.SourceClass);
         var discoveryRaw = new RawSourceItem(Guid.NewGuid(), discoverySource.Id, "Discovery Raw", new Uri("https://example.com/discovery/raw"), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, "discovery", new ContentHash("discovery"), sourceClass: discoverySource.SourceClass);
 
-        var officialIntelligence = new IntelligenceItem(Guid.NewGuid(), officialRaw.Id, "Vendor", "Topic", "Category", "Framework", "Summary", Array.Empty<string>(), Array.Empty<string>(), "Unknown", SourceClass.CurrentOfficial, DateTimeOffset.UtcNow, officialRaw.Url);
-        var trendIntelligence = new IntelligenceItem(Guid.NewGuid(), trendRaw.Id, "Vendor", "Topic", "Category", "Framework", "Summary", Array.Empty<string>(), Array.Empty<string>(), "Unknown", SourceClass.TrendResearch, DateTimeOffset.UtcNow, trendRaw.Url);
-        var discoveryIntelligence = new IntelligenceItem(Guid.NewGuid(), discoveryRaw.Id, "Vendor", "Topic", "Category", "Framework", "Summary", Array.Empty<string>(), Array.Empty<string>(), "Unknown", SourceClass.ResearchDiscovery, DateTimeOffset.UtcNow, discoveryRaw.Url);
+        var officialIntelligence = new IntelligenceItem(Guid.NewGuid(), officialRaw.Id, "Vendor", "Topic", "Category", "Framework", "Summary", Array.Empty<string>(), Array.Empty<string>(), "Unknown", SourceClass.CurrentOfficial, DateTimeOffset.UtcNow, officialRaw.Url, new[] { AIConceptTag.DeveloperPlatform });
+        var trendIntelligence = new IntelligenceItem(Guid.NewGuid(), trendRaw.Id, "Vendor", "Topic", "Category", "Framework", "Summary", Array.Empty<string>(), Array.Empty<string>(), "Unknown", SourceClass.TrendResearch, DateTimeOffset.UtcNow, trendRaw.Url, new[] { AIConceptTag.EnterpriseAdoption });
+        var discoveryIntelligence = new IntelligenceItem(Guid.NewGuid(), discoveryRaw.Id, "Vendor", "Topic", "Category", "Framework", "Summary", Array.Empty<string>(), Array.Empty<string>(), "Unknown", SourceClass.ResearchDiscovery, DateTimeOffset.UtcNow, discoveryRaw.Url, new[] { AIConceptTag.WorkforceImpact });
 
-        var trendEvidence = new TrendEvidence(Guid.NewGuid(), trendRaw.Id, "Topic", "2026", TrendEvidencePeriodProvenance.SourceContent, "Finding", "Evidence", 0.8m, trendRaw.Url, "42%", "Publication");
+        var trendEvidence = new TrendEvidence(Guid.NewGuid(), trendRaw.Id, "Topic", "2026", TrendEvidencePeriodProvenance.SourceContent, "Finding", "Evidence", 0.8m, trendRaw.Url, "42%", "Publication", new[] { AIConceptTag.EnterpriseAdoption });
 
         fixture.DbContext.SourceDefinitions.AddRange(officialSource, trendSource, discoverySource);
         fixture.DbContext.RawSourceItems.AddRange(officialRaw, trendRaw, discoveryRaw);

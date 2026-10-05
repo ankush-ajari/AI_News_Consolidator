@@ -50,11 +50,15 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddScoped<ILLMClient, HttpJsonLlmClient>();
         services.AddScoped<IIntelligenceExtractor, LlmIntelligenceExtractor>();
+        services.AddScoped<IAIConceptClassifier, DeterministicAIConceptClassifier>();
+        services.AddScoped<ITrendFamilyClassifier, DeterministicTrendFamilyClassifier>();
         services.AddScoped<ITrendEvidenceExtractor, LlmTrendEvidenceExtractor>();
         services.AddScoped<IntelligenceAnalysisService>();
         services.AddScoped<TrendAnalysisService>();
         services.AddScoped<InspectionService>();
         services.AddScoped<MaintenanceResetService>();
+        services.AddScoped<ConceptBackfillService>();
+        services.AddScoped<TrendFamilyBackfillService>();
         services.AddScoped<ITrendCandidateSelector, TrendCandidateSelector>();
         services.AddScoped<ITrendCorrelationService, LlmTrendCorrelationService>();
         services.AddScoped<IPersonaReportGenerator, LlmPersonaReportGenerator>();

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "CZiW1xwBS/5WBvDquQPWeXTKIB50FMPsV4F6O09K4QwSvXHd4+ycbG+aX+PBa1i+PMUnrBlAb9DT1gI9VBH1XA==",
+  "dgSpecHash": "JrGgsLt+PZKaB19O/OWMGhjQq99/4r8C89ea8eQqquMryWt1VwjHJhv4k5FJiBNZdHk016hI6I/hULY9LbIwwA==",
   "success": true,
   "projectFilePath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Infrastructure.Tests\\AiIntelligence.Infrastructure.Tests.csproj",
   "expectedPackageFiles": [

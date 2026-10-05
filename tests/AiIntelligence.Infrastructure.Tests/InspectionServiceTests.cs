@@ -65,6 +65,7 @@ public sealed class InspectionServiceTests
         var row = Assert.Single(rows);
         Assert.Equal("Trend", row.SourceName);
         Assert.Equal(SourceClass.TrendResearch, row.SourceClass);
+        Assert.False(string.IsNullOrWhiteSpace(row.ContentHash));
     }
 
     [Fact]
@@ -205,7 +206,7 @@ public sealed class InspectionServiceTests
             CallCount++;
             return Task.FromResult(new TrendEvidenceExtractionBatch(new[]
             {
-                new TrendEvidenceExtractionResult("Topic", "2026", TrendEvidencePeriodProvenance.SourceContent, "Finding", "Unknown", "Summary", 0.8m, sourceItem.Url, "Publication")
+                new TrendEvidenceExtractionResult("Topic", "2026", TrendEvidencePeriodProvenance.SourceContent, "Topic finding", "Unknown", "Topic summary", 0.8m, sourceItem.Url, "Publication", Array.Empty<AIConceptTag>())
             }));
         }
     }

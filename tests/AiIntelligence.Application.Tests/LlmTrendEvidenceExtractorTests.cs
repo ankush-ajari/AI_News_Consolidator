@@ -43,6 +43,7 @@ public sealed class LlmTrendEvidenceExtractorTests
         Assert.Equal(TrendEvidencePeriodProvenance.SourceContent, item.PeriodProvenance);
         Assert.Equal("42%", item.QuantitativeEvidence);
         Assert.Equal("Stanford AI Index", item.PublicationName);
+        Assert.Empty(item.ConceptTags);
     }
 
     [Fact]

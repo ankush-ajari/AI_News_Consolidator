@@ -137,7 +137,8 @@ public sealed class LlmTrendEvidenceExtractor : ITrendEvidenceExtractor
                 OrUnknown(EvidenceSummary),
                 Math.Clamp(Confidence, 0, 1),
                 sourceUrl,
-                OrUnknown(PublicationName));
+                OrUnknown(PublicationName),
+                Array.Empty<AIConceptTag>());
         }
 
         private static string OrUnknown(string? value) => string.IsNullOrWhiteSpace(value) ? "Unknown" : value.Trim();

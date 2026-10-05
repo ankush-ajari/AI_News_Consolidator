@@ -24,6 +24,7 @@ public sealed class AgentFrameworkToolsTests
             sourceRepository,
             intelligenceRepository,
             extractor,
+            new DeterministicAIConceptClassifier(),
             NullLogger<IntelligenceAnalysisService>.Instance);
         var expected = new IntelligenceAnalysisResult(
             0,
@@ -63,8 +64,9 @@ public sealed class AgentFrameworkToolsTests
             sourceRepository,
             trendRepository,
             extractor,
+            new DeterministicAIConceptClassifier(),
             NullLogger<TrendAnalysisService>.Instance);
-        var expected = new TrendAnalysisResult(0, 0, 0, 0);
+        var expected = new TrendAnalysisResult(0, 0, 0, 0, 0, 0);
         rawRepository.ListAsync(Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<IReadOnlyCollection<RawSourceItem>>(Array.Empty<RawSourceItem>()));
         trendRepository.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(0));
@@ -172,6 +174,7 @@ public sealed class AgentFrameworkToolsTests
             "Unknown",
             SourceClass.CurrentOfficial,
             DateTimeOffset.UtcNow,
-            new Uri("https://example.com"));
+            new Uri("https://example.com"),
+            new[] { AIConceptTag.DeveloperPlatform });
     }
 }

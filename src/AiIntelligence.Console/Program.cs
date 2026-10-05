@@ -15,19 +15,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration
     .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
     .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: false)
     .AddEnvironmentVariables();
+
+var foundryOptions = builder.Configuration.GetSection(LlmClientOptions.SectionName).Get<LlmClientOptions>() ?? new LlmClientOptions();
 
 builder.Services.AddSourceIngestionInfrastructure(builder.Configuration);
 
 var commandForMode = args.Length > 0 ? args[0] : string.Empty;
 var mockFlag = ConsoleCommandParser.HasFlag(args, "--mock-llm");
-var foundryApiKey = builder.Configuration.GetSection(LlmClientOptions.SectionName).GetValue<string>("ApiKey") ?? string.Empty;
-var shouldUseMock = ConsoleLlmModeDecider.ShouldUseMock(commandForMode, mockFlag, !string.IsNullOrWhiteSpace(foundryApiKey));
+var shouldUseMock = ConsoleLlmModeDecider.ShouldUseMock(commandForMode, mockFlag, !string.IsNullOrWhiteSpace(foundryOptions.ApiKey));
 if (shouldUseMock)
 {
     builder.Services.AddScoped<ILLMClient, MockLlmClient>();
@@ -37,17 +40,18 @@ if (shouldUseMock)
 
 using var host = builder.Build();
 
+var resolvedOptions = host.Services.GetRequiredService<IOptions<LlmClientOptions>>().Value;
+
 if (args.Length == 0 || !ConsoleCommandParser.IsSupportedCommand(args[0]))
 {
-    Console.WriteLine("Usage: dotnet run --project src/AiIntelligence.Console -- <fetch|ingest|analyze|analyze-trends|inspect|reset|report|test-llm|run-workflow> [sources|raw|trends|stats|analysis|intelligence] [options]");
+    Console.WriteLine("Usage: dotnet run --project src/AiIntelligence.Console -- <fetch|ingest|analyze|analyze-trends|inspect|reset|report|test-llm|run-workflow|backfill-concepts|backfill-trend-families> [sources|raw|trends|stats|analysis|intelligence] [options]");
     return;
 }
 
-if (!shouldUseMock
-    && !string.IsNullOrWhiteSpace(commandForMode)
-    && IsLlmRequiredCommand(commandForMode))
+if (ConsoleLlmGuard.IsApiKeyMissingForCommand(commandForMode, shouldUseMock, resolvedOptions))
 {
-    throw new InvalidOperationException("Foundry LLM configuration is missing required key(s): Foundry:ApiKey.");
+    Console.Error.WriteLine("Foundry LLM configuration is missing required key(s): Foundry:ApiKey.");
+    return;
 }
 
 var command = args[0];
@@ -329,6 +333,67 @@ try
         Console.WriteLine($"Persisted count: {trendResult.PersistedCount}");
         Console.WriteLine($"Skipped non-trend research count: {trendResult.SkippedNonTrendResearchCount}");
         Console.WriteLine($"Failed count: {trendResult.FailedCount}");
+        Console.WriteLine($"Duplicate groups detected: {trendResult.DuplicateGroupsDetected}");
+        Console.WriteLine($"Duplicates suppressed: {trendResult.DuplicatesSuppressed}");
+        return;
+    }
+
+    if (string.Equals(command, "backfill-concepts", StringComparison.OrdinalIgnoreCase))
+    {
+        var confirm = ConsoleCommandParser.HasFlag(args, "--confirm");
+        var dryRun = ConsoleCommandParser.HasFlag(args, "--dry-run");
+        if (!confirm && !dryRun)
+        {
+            Console.WriteLine("Usage: backfill-concepts --dry-run | --confirm");
+            return;
+        }
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<AiIntelligenceDbContext>();
+        await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+
+        var backfillService = scope.ServiceProvider.GetRequiredService<ConceptBackfillService>();
+        var backfillResult = await backfillService.BackfillAsync(confirm, CancellationToken.None).ConfigureAwait(false);
+        Console.WriteLine(confirm ? "Concept backfill persisted." : "Concept backfill dry run complete.");
+        Console.WriteLine(confirm
+            ? "Concept distribution across persisted records:"
+            : "Concept distribution across existing records:");
+        foreach (var entry in backfillResult.Counts.OrderByDescending(entry => entry.Value))
+        {
+            Console.WriteLine($"{entry.Key}: {entry.Value}");
+        }
+        Console.WriteLine("Records requiring backfill:");
+        Console.WriteLine($"IntelligenceItems: {backfillResult.IntelligenceItemsNeedingBackfill}");
+        Console.WriteLine($"TrendEvidence: {backfillResult.TrendEvidenceNeedingBackfill}");
+        return;
+    }
+
+    if (string.Equals(command, "backfill-trend-families", StringComparison.OrdinalIgnoreCase))
+    {
+        var confirm = ConsoleCommandParser.HasFlag(args, "--confirm");
+        var dryRun = ConsoleCommandParser.HasFlag(args, "--dry-run");
+        if (!confirm && !dryRun)
+        {
+            Console.WriteLine("Usage: backfill-trend-families --dry-run | --confirm");
+            return;
+        }
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<AiIntelligenceDbContext>();
+        await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+
+        var backfillService = scope.ServiceProvider.GetRequiredService<TrendFamilyBackfillService>();
+        var backfillResult = await backfillService.BackfillAsync(confirm, CancellationToken.None).ConfigureAwait(false);
+        Console.WriteLine(confirm ? "Trend family backfill persisted." : "Trend family backfill dry run complete.");
+        Console.WriteLine(confirm
+            ? "Trend family distribution across persisted records:"
+            : "Trend family distribution across existing records:");
+        foreach (var entry in backfillResult.Counts.OrderByDescending(entry => entry.Value))
+        {
+            Console.WriteLine($"{entry.Key}: {entry.Value}");
+        }
+        Console.WriteLine("Records requiring update:");
+        Console.WriteLine($"TrendEvidence: {backfillResult.RecordsRequiringUpdate}");
+        Console.WriteLine($"Unknown TrendFamily count: {backfillResult.UnknownCount}");
+        Console.WriteLine($"Total TrendEvidence: {backfillResult.TotalTrendEvidence}");
         return;
     }
 
@@ -429,7 +494,7 @@ static async Task RunInspectAsync(
 {
     if (args.Length < 2)
     {
-        Console.WriteLine("Usage: inspect <sources|raw|trends|stats>");
+        Console.WriteLine("Usage: inspect <sources|raw|raw-duplicates|trends|trend-unknowns|stats|concepts|trend-duplicates>");
         return;
     }
 
@@ -473,9 +538,34 @@ static async Task RunInspectAsync(
             Console.WriteLine($"PublishedAt: {row.PublishedAt?.ToString("O") ?? "n/a"}");
             Console.WriteLine($"FetchedAt: {row.FetchedAt:O}");
             Console.WriteLine($"URL: {row.Url}");
+            Console.WriteLine($"ContentHash: {row.ContentHash}");
             Console.WriteLine($"RawContent length: {row.RawContentLength}");
             Console.WriteLine($"EnrichedContent length: {row.EnrichedContentLength}");
             Console.WriteLine($"Preview: {row.Preview}");
+            Console.WriteLine();
+        }
+
+        return;
+    }
+
+    if (string.Equals(target, "raw-duplicates", StringComparison.OrdinalIgnoreCase))
+    {
+        var groups = await inspectionService.GetRawDuplicateGroupsAsync(cancellationToken).ConfigureAwait(false);
+
+        foreach (var group in groups)
+        {
+            Console.WriteLine($"Duplicate Raw Source Group - Source: {group.SourceName} ({group.SourceClass})");
+            Console.WriteLine($"SourceDefinitionId: {group.SourceDefinitionId}");
+            Console.WriteLine($"CanonicalUrl: {group.CanonicalUrl}");
+            Console.WriteLine($"RawSourceItem count: {group.Entries.Count}");
+            foreach (var entry in group.Entries)
+            {
+                Console.WriteLine($"  Id: {entry.Id}");
+                Console.WriteLine($"  PublishedAt: {entry.PublishedAt?.ToString("O") ?? "n/a"}");
+                Console.WriteLine($"  FetchedAt: {entry.FetchedAt:O}");
+                Console.WriteLine($"  RawContent length: {entry.RawContentLength}");
+                Console.WriteLine($"  ContentHash: {entry.ContentHash}");
+            }
             Console.WriteLine();
         }
 
@@ -487,7 +577,8 @@ static async Task RunInspectAsync(
         var rows = await inspectionService.GetTrendsAsync(new TrendInspectionFilter(
             ConsoleCommandParser.GetIntOption(args, "--limit") ?? 20,
             ConsoleCommandParser.GetStringOption(args, "--source"),
-            ConsoleCommandParser.GetStringOption(args, "--topic")), cancellationToken).ConfigureAwait(false);
+            ConsoleCommandParser.GetStringOption(args, "--topic"),
+            ConsoleCommandParser.HasFlag(args, "--include-family")), cancellationToken).ConfigureAwait(false);
 
         foreach (var row in rows)
         {
@@ -495,10 +586,36 @@ static async Task RunInspectAsync(
             Console.WriteLine($"Source Name: {row.SourceName}");
             Console.WriteLine($"Topic: {row.Topic}");
             Console.WriteLine($"Period: {row.Period}");
+            if (ConsoleCommandParser.HasFlag(args, "--include-family"))
+            {
+                Console.WriteLine($"TrendFamily: {row.TrendFamily}");
+            }
             Console.WriteLine($"Finding: {row.Finding}");
             Console.WriteLine($"EvidenceSummary: {row.EvidenceSummary}");
             Console.WriteLine($"Confidence: {row.Confidence}");
             Console.WriteLine($"Source URL: {row.SourceUrl}");
+            Console.WriteLine();
+        }
+
+        return;
+    }
+
+    if (string.Equals(target, "trend-unknowns", StringComparison.OrdinalIgnoreCase))
+    {
+        var rows = await inspectionService.GetUnknownTrendsAsync(
+            ConsoleCommandParser.GetIntOption(args, "--limit") ?? 200,
+            cancellationToken).ConfigureAwait(false);
+
+        foreach (var row in rows)
+        {
+            Console.WriteLine($"Id: {row.Id}");
+            Console.WriteLine($"Source Name: {row.SourceName}");
+            Console.WriteLine($"SourceDefinitionId: {row.SourceDefinitionId}");
+            Console.WriteLine($"RawSourceItemId: {row.SourceItemId}");
+            Console.WriteLine($"Topic: {row.Topic}");
+            Console.WriteLine($"Finding: {row.Finding}");
+            Console.WriteLine($"EvidenceSummary: {row.EvidenceSummary}");
+            Console.WriteLine($"ConceptTags: {(row.ConceptTags.Count == 0 ? "(none)" : string.Join(", ", row.ConceptTags))}");
             Console.WriteLine();
         }
 
@@ -536,15 +653,79 @@ static async Task RunInspectAsync(
         return;
     }
 
-    Console.WriteLine("Unknown inspect target. Use sources, raw, trends, or stats.");
-}
+    if (string.Equals(target, "concepts", StringComparison.OrdinalIgnoreCase))
+    {
+        var rows = await inspectionService.GetConceptsAsync(
+            ConsoleCommandParser.GetIntOption(args, "--limit") ?? 20,
+            ConsoleCommandParser.GetStringOption(args, "--type"),
+            cancellationToken).ConfigureAwait(false);
 
-static bool IsLlmRequiredCommand(string command)
-{
-    return string.Equals(command, "analyze", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "analyze-trends", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "test-llm", StringComparison.OrdinalIgnoreCase);
+        foreach (var row in rows)
+        {
+            Console.WriteLine($"RecordType: {row.RecordType}");
+            Console.WriteLine($"Id: {row.Id}");
+            Console.WriteLine($"Title/Topic: {row.TitleOrTopic}");
+            Console.WriteLine($"ConceptTags: {(row.ConceptTags.Count == 0 ? "(none)" : string.Join(", ", row.ConceptTags))}");
+            Console.WriteLine($"SourceName: {row.SourceName}");
+            Console.WriteLine($"SourceClass: {row.SourceClass}");
+            Console.WriteLine();
+        }
+
+        return;
+    }
+
+    if (string.Equals(target, "trend-duplicates", StringComparison.OrdinalIgnoreCase))
+    {
+        var groups = await inspectionService.GetTrendDuplicateGroupsAsync(
+            ConsoleCommandParser.GetIntOption(args, "--limit") ?? 20,
+            cancellationToken).ConfigureAwait(false);
+
+        foreach (var group in groups)
+        {
+            Console.WriteLine($"Duplicate Group - Source: {group.SourceName} ({group.SourceClass})");
+            Console.WriteLine($"SourceDefinitionId: {group.SourceDefinitionId}");
+            Console.WriteLine($"SourceItemId: {group.SourceItemId}");
+            Console.WriteLine("Canonical Trend:");
+            Console.WriteLine($"  TrendFamily: {group.Canonical.TrendFamily}");
+            Console.WriteLine($"  Topic: {group.Canonical.Topic}");
+            Console.WriteLine($"  Finding: {group.Canonical.Finding}");
+            Console.WriteLine($"  EvidenceSummary: {group.Canonical.EvidenceSummary}");
+            Console.WriteLine($"  Period: {group.Canonical.Period}");
+            Console.WriteLine($"  Confidence: {group.Canonical.Confidence:0.##}");
+            Console.WriteLine($"  Reason: {group.Reason}");
+
+            if (group.ConsistencyWarnings.Count > 0)
+            {
+                Console.WriteLine("Topic/Finding consistency warnings:");
+                foreach (var warning in group.ConsistencyWarnings)
+                {
+                    Console.WriteLine($"  - {warning}");
+                }
+            }
+
+            Console.WriteLine("Suppressed Trend:");
+            foreach (var duplicate in group.Duplicates)
+            {
+                Console.WriteLine($"  TrendFamily: {duplicate.Entry.TrendFamily}");
+                Console.WriteLine($"  Topic: {duplicate.Entry.Topic}");
+                Console.WriteLine($"  Finding: {duplicate.Entry.Finding}");
+                Console.WriteLine($"  EvidenceSummary: {duplicate.Entry.EvidenceSummary}");
+                Console.WriteLine($"  Period: {duplicate.Entry.Period}");
+                Console.WriteLine($"  Confidence: {duplicate.Entry.Confidence:0.##}");
+                Console.WriteLine($"  Similarity Score: {duplicate.SimilarityScore:0.00}");
+                Console.WriteLine($"  Topic Similarity: {duplicate.TopicSimilarity:0.00}");
+                Console.WriteLine($"  Finding Similarity: {duplicate.FindingSimilarity:0.00}");
+                Console.WriteLine($"  Evidence Similarity: {duplicate.EvidenceSimilarity:0.00}");
+                Console.WriteLine($"  Concept Similarity: {duplicate.ConceptSimilarity:0.00}");
+                Console.WriteLine($"  Reason: {duplicate.Reason}");
+            }
+            Console.WriteLine();
+        }
+
+        return;
+    }
+
+    Console.WriteLine("Unknown inspect target. Use sources, raw, trends, stats, concepts, or trend-duplicates.");
 }
 
 static async Task RunResetAsync(string[] args, MaintenanceResetService resetService, CancellationToken cancellationToken)

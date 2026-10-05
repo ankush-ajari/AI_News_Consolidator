@@ -32,6 +32,10 @@ namespace AiIntelligence.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ConceptTags")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Limitations")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -137,6 +141,8 @@ namespace AiIntelligence.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("SourceDefinitionId");
 
+                    b.HasIndex("SourceDefinitionId", "CanonicalUrl");
+
                     b.HasIndex("CanonicalUrl", "ContentHash")
                         .IsUnique();
 
@@ -199,6 +205,10 @@ namespace AiIntelligence.Infrastructure.Persistence.Migrations
                         .HasPrecision(5, 4)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("ConceptTags")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("EvidenceSummary")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -238,6 +248,10 @@ namespace AiIntelligence.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("TrendFamily")
+                        .HasMaxLength(50)
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

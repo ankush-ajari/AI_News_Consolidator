@@ -26,14 +26,30 @@ public sealed record RawInspectionRow(
     DateTimeOffset? PublishedAt,
     DateTimeOffset FetchedAt,
     Uri Url,
+    string ContentHash,
     int RawContentLength,
     int EnrichedContentLength,
     string Preview);
 
+public sealed record RawDuplicateInspectionGroup(
+    Guid SourceDefinitionId,
+    string SourceName,
+    SourceClass SourceClass,
+    string CanonicalUrl,
+    IReadOnlyCollection<RawDuplicateInspectionEntry> Entries);
+
+public sealed record RawDuplicateInspectionEntry(
+    Guid Id,
+    DateTimeOffset? PublishedAt,
+    DateTimeOffset FetchedAt,
+    int RawContentLength,
+    string ContentHash);
+
 public sealed record TrendInspectionFilter(
     int Limit = 20,
     string? SourceName = null,
-    string? Topic = null);
+    string? Topic = null,
+    bool IncludeFamily = false);
 
 public sealed record TrendInspectionRow(
     Guid Id,
@@ -44,7 +60,53 @@ public sealed record TrendInspectionRow(
     string Finding,
     string EvidenceSummary,
     decimal Confidence,
-    Uri SourceUrl);
+    Uri SourceUrl,
+    TrendFamily TrendFamily);
+
+public sealed record TrendUnknownInspectionRow(
+    Guid Id,
+    string Topic,
+    string Finding,
+    string EvidenceSummary,
+    IReadOnlyCollection<AIConceptTag> ConceptTags,
+    string SourceName,
+    Guid SourceDefinitionId,
+    Guid SourceItemId);
+
+public sealed record ConceptInspectionRow(
+    string RecordType,
+    Guid Id,
+    string TitleOrTopic,
+    IReadOnlyCollection<AIConceptTag> ConceptTags,
+    string SourceName,
+    SourceClass SourceClass);
+
+public sealed record TrendDuplicateInspectionEntry(
+    string Topic,
+    string Finding,
+    string EvidenceSummary,
+    string Period,
+    decimal Confidence,
+    TrendFamily TrendFamily);
+
+public sealed record TrendDuplicateInspectionMatch(
+    TrendDuplicateInspectionEntry Entry,
+    double SimilarityScore,
+    double TopicSimilarity,
+    double FindingSimilarity,
+    double EvidenceSimilarity,
+    double ConceptSimilarity,
+    string Reason);
+
+public sealed record TrendDuplicateInspectionGroup(
+    string SourceName,
+    SourceClass SourceClass,
+    Guid SourceDefinitionId,
+    Guid SourceItemId,
+    TrendDuplicateInspectionEntry Canonical,
+    IReadOnlyCollection<TrendDuplicateInspectionMatch> Duplicates,
+    IReadOnlyCollection<string> ConsistencyWarnings,
+    string Reason);
 
 public sealed record SourceGroupRow(string SourceName, SourceClass SourceClass, int Count);
 
