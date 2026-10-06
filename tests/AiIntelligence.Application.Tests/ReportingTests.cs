@@ -320,36 +320,37 @@ public sealed class ReportingTests
     }
 
     [Fact]
-    public async Task CandidateSelector_PrefersIndependentSources_AndExcludesSameSourceWhenAvailable()
+    public async Task CandidateSelector_PrefersIndependentSources_AsTieBreaker()
     {
-        var intelligence = Intelligence(topic: "Developer platform", category: "AI Developer", product: "SDK");
+        var intelligence = Intelligence(topic: "Developer platform", category: "AI Developer", product: "SDK", conceptTags: new[] { AIConceptTag.DeveloperPlatform });
         var repo = Substitute.For<ITrendEvidenceRepository>();
         repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
         {
-            Trend("Developer platform", "Same source evidence.", sourceUrl: intelligence.SourceUrl),
-            Trend("Developer platform adoption", "Independent evidence.", sourceUrl: new Uri("https://trend.example.com/independent"))
+            Trend("Developer platform", "Same source evidence.", sourceUrl: intelligence.SourceUrl, conceptTags: new[] { AIConceptTag.DeveloperPlatform }, trendFamily: TrendFamily.OrganizationalAIAdoption),
+            Trend("Developer platform", "Independent evidence.", sourceUrl: new Uri("https://trend.example.com/independent"), conceptTags: new[] { AIConceptTag.DeveloperPlatform }, trendFamily: TrendFamily.OrganizationalAIAdoption)
         });
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
-        var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 3, CancellationToken.None);
+        var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 1, CancellationToken.None);
 
-        Assert.Contains(selection.Candidates, candidate => candidate.SourceUrl.AbsoluteUri == "https://trend.example.com/independent");
-        Assert.DoesNotContain(selection.Candidates, candidate => candidate.SourceUrl == intelligence.SourceUrl);
+        var candidate = Assert.Single(selection.Candidates);
+        Assert.Equal("https://trend.example.com/independent", candidate.SourceUrl.AbsoluteUri);
         Assert.Contains(selection.Diagnostics, diagnostic => diagnostic.Selected && diagnostic.MatchReason.Contains("topic", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(diagnostic.SourceName));
     }
 
     [Fact]
-    public async Task CandidateSelector_AllowsSameSourceOnlyWhenNoIndependentCandidates()
+    public async Task CandidateSelector_AllowsSameSourceWhenItHasHigherScore()
     {
-        var intelligence = Intelligence(topic: "Developer platform", category: "AI Developer", product: "SDK");
+        var intelligence = Intelligence(topic: "Developer platform", category: "AI Developer", product: "SDK", conceptTags: new[] { AIConceptTag.DeveloperPlatform });
         var repo = Substitute.For<ITrendEvidenceRepository>();
         repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
         {
-            Trend("Developer platform", "Same source evidence.", sourceUrl: intelligence.SourceUrl)
+            Trend("Developer platform SDK", "Same source evidence.", sourceUrl: intelligence.SourceUrl, conceptTags: new[] { AIConceptTag.DeveloperPlatform }, trendFamily: TrendFamily.OrganizationalAIAdoption),
+            Trend("Developer platform", "Independent evidence.", sourceUrl: new Uri("https://trend.example.com/independent"), conceptTags: new[] { AIConceptTag.DeveloperPlatform }, trendFamily: TrendFamily.OrganizationalAIAdoption)
         });
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
-        var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 3, CancellationToken.None);
+        var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 1, CancellationToken.None);
 
         var candidate = Assert.Single(selection.Candidates);
         Assert.Equal(intelligence.SourceUrl, candidate.SourceUrl);
@@ -360,15 +361,15 @@ public sealed class ReportingTests
     [Fact]
     public async Task CandidateSelector_RespectsMaxCandidateCount()
     {
-        var intelligence = Intelligence(topic: "Agent evaluation", category: "AI Agent", product: "Agent SDK");
+        var intelligence = Intelligence(topic: "Agent evaluation", category: "AI Agent", product: "Agent SDK", conceptTags: new[] { AIConceptTag.AgenticAI, AIConceptTag.Evaluation });
         var repo = Substitute.For<ITrendEvidenceRepository>();
         repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
         {
-            Trend("Agent evaluation", "Agent benchmark performance improved.", sourceUrl: new Uri("https://trend.example.com/1")),
-            Trend("Agent evaluation", "Agent evaluation tooling updated.", sourceUrl: new Uri("https://trend.example.com/2")),
-            Trend("Agent evaluation", "Agent adoption continued.", sourceUrl: new Uri("https://trend.example.com/3")),
-            Trend("Agent evaluation", "Agent testing trends.", sourceUrl: new Uri("https://trend.example.com/4")),
-            Trend("Agent evaluation", "Agent workflow change.", sourceUrl: new Uri("https://trend.example.com/5"))
+            Trend("Agent evaluation", "Agent benchmark performance improved.", sourceUrl: new Uri("https://trend.example.com/1"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentTaskPerformance),
+            Trend("Agent evaluation", "Agent evaluation tooling updated.", sourceUrl: new Uri("https://trend.example.com/2"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentTaskPerformance),
+            Trend("Agent evaluation", "Agent adoption continued.", sourceUrl: new Uri("https://trend.example.com/3"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentReliability),
+            Trend("Agent evaluation", "Agent testing trends.", sourceUrl: new Uri("https://trend.example.com/4"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentReliability),
+            Trend("Agent evaluation", "Agent workflow change.", sourceUrl: new Uri("https://trend.example.com/5"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentTaskPerformance)
         });
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
@@ -377,7 +378,134 @@ public sealed class ReportingTests
         Assert.Equal(3, selection.Candidates.Count);
     }
 
-    private static IntelligenceItem Intelligence(string topic = "Agent evaluation", string category = "AI Agent", string product = "Agent SDK", string summary = "An agent evaluation capability changed.") => new(
+    [Fact]
+    public async Task CandidateSelector_PrefersAgentFamilies_ForToolUseSignals()
+    {
+        var intelligence = Intelligence(
+            topic: "Hosted agents",
+            category: "AI Agent",
+            product: "Agent SDK",
+            summary: "Hosted agents gain new tool-use primitives.",
+            conceptTags: new[] { AIConceptTag.AgenticAI, AIConceptTag.ToolUse });
+        var repo = Substitute.For<ITrendEvidenceRepository>();
+        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        {
+            Trend("Agent task performance", "Agent task completion rates improved.", conceptTags: new[] { AIConceptTag.AgenticAI, AIConceptTag.ToolUse }, trendFamily: TrendFamily.AgentTaskPerformance),
+            Trend("Consumer value", "Consumer surplus continues climbing.", conceptTags: new[] { AIConceptTag.EnterpriseAdoption }, trendFamily: TrendFamily.ConsumerAIValue),
+            Trend("Organization adoption", "Enterprise adoption for agents grows.", conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.OrganizationalAIAdoption)
+        });
+        var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
+
+        var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 2, CancellationToken.None);
+
+        Assert.Equal("Agent task performance", selection.Candidates.First().Topic);
+        Assert.Contains(selection.Candidates, candidate => candidate.TrendFamily == TrendFamily.OrganizationalAIAdoption);
+    }
+
+    [Fact]
+    public async Task CandidateSelector_PrioritizesSpeechAndMultimodalOverBenchmarks_WhenRelevant()
+    {
+        var intelligence = Intelligence(
+            topic: "Speech LLM",
+            category: "Speech",
+            product: "Speech Model",
+            summary: "Speech LLM adds multimodal reasoning.",
+            conceptTags: new[] { AIConceptTag.SpeechVoice, AIConceptTag.MultimodalAI, AIConceptTag.ModelCapability });
+        var repo = Substitute.For<ITrendEvidenceRepository>();
+        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        {
+            Trend("Speech voice", "Speech model accuracy improves.", conceptTags: new[] { AIConceptTag.SpeechVoice }, trendFamily: TrendFamily.ModelPerformanceConvergence),
+            Trend("Benchmark saturation", "Benchmarks are saturated.", conceptTags: new[] { AIConceptTag.Evaluation }, trendFamily: TrendFamily.BenchmarkSaturation),
+            Trend("AI investment", "Capital inflows rise.", conceptTags: new[] { AIConceptTag.AIInvestment }, trendFamily: TrendFamily.CorporateAIInvestment)
+        });
+        var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
+
+        var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 2, CancellationToken.None);
+
+        Assert.Equal("Speech voice", selection.Candidates.First().Topic);
+        Assert.DoesNotContain(selection.Candidates, candidate => candidate.Topic == "AI investment");
+    }
+
+    [Fact]
+    public async Task CandidateSelector_WeightsFoundryRoundup_ToRelevantFamilies()
+    {
+        var intelligence = Intelligence(
+            topic: "Foundry roundup",
+            category: "Developer platform",
+            product: "Foundry SDK",
+            summary: "Foundry roundup highlights hosted agents, toolboxes, model router, voice live, local runtime, and SDK updates.",
+            conceptTags: new[] { AIConceptTag.AgenticAI, AIConceptTag.ToolUse, AIConceptTag.ModelOperations, AIConceptTag.SpeechVoice, AIConceptTag.DeveloperPlatform });
+        var repo = Substitute.For<ITrendEvidenceRepository>();
+        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        {
+            Trend("Agent performance", "Agent tasks improve.", conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentTaskPerformance),
+            Trend("Agent adoption", "Agent adoption grows.", conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.OrganizationalAIAdoption),
+            Trend("Compute spend", "Compute infrastructure spend rises.", conceptTags: new[] { AIConceptTag.ModelOperations }, trendFamily: TrendFamily.ComputeInfrastructureSpend),
+            Trend("Voice live", "Voice live usage expands.", conceptTags: new[] { AIConceptTag.SpeechVoice }, trendFamily: TrendFamily.ModelPerformanceConvergence),
+            Trend("Open closed gap", "Open vs closed gap continues.", conceptTags: new[] { AIConceptTag.ModelCapability }, trendFamily: TrendFamily.OpenClosedModelGap)
+        });
+        var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
+
+        var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 3, CancellationToken.None);
+
+        Assert.DoesNotContain(selection.Candidates, candidate => candidate.TrendFamily == TrendFamily.OpenClosedModelGap);
+        Assert.Contains(selection.Candidates, candidate => candidate.TrendFamily == TrendFamily.AgentTaskPerformance);
+        Assert.Contains(selection.Candidates, candidate => candidate.TrendFamily == TrendFamily.OrganizationalAIAdoption);
+        Assert.Contains(selection.Candidates, candidate => candidate.TrendFamily == TrendFamily.ComputeInfrastructureSpend);
+    }
+
+    [Fact]
+    public async Task CandidateSelector_DoesNotLetRecencyOutweighRelevance()
+    {
+        var intelligence = Intelligence(
+            topic: "Agent reliability",
+            category: "AI Agent",
+            product: "Agent SDK",
+            summary: "Agent reliability tooling improved.",
+            conceptTags: new[] { AIConceptTag.AgenticAI });
+        var repo = Substitute.For<ITrendEvidenceRepository>();
+        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        {
+            Trend("Agent reliability", "Agent reliability improved.", period: "2023", periodProvenance: TrendEvidencePeriodProvenance.PublicationDate, conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentReliability),
+            Trend("Consumer adoption", "Consumer adoption surged.", period: "2026", periodProvenance: TrendEvidencePeriodProvenance.SourceMetadata, conceptTags: new[] { AIConceptTag.EnterpriseAdoption }, trendFamily: TrendFamily.ConsumerAIAdoption)
+        });
+        var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
+
+        var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 1, CancellationToken.None);
+
+        Assert.Equal("Agent reliability", selection.Candidates.Single().Topic);
+    }
+
+    [Fact]
+    public async Task CandidateSelector_FamilyPresenceWithoutCompatibility_DoesNotScore()
+    {
+        var intelligence = Intelligence(
+            topic: "Speech LLM",
+            category: "Speech",
+            product: "Speech Model",
+            summary: "Speech LLM updates.",
+            conceptTags: new[] { AIConceptTag.SpeechVoice });
+        var repo = Substitute.For<ITrendEvidenceRepository>();
+        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        {
+            Trend("Benchmark saturation", "Benchmarks saturated.", conceptTags: new[] { AIConceptTag.Evaluation }, trendFamily: TrendFamily.BenchmarkSaturation),
+            Trend("Speech voice", "Speech improvements.", conceptTags: new[] { AIConceptTag.SpeechVoice }, trendFamily: TrendFamily.ModelPerformanceConvergence)
+        });
+        var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
+
+        var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 2, CancellationToken.None);
+
+        var benchmarkDiagnostic = Assert.Single(selection.Diagnostics.Where(diagnostic => diagnostic.Topic == "Benchmark saturation"));
+        Assert.Equal(0, benchmarkDiagnostic.FamilyCompatibilityScore);
+        Assert.Contains("Rejected", benchmarkDiagnostic.RejectionReason ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static IntelligenceItem Intelligence(
+        string topic = "Agent evaluation",
+        string category = "AI Agent",
+        string product = "Agent SDK",
+        string summary = "An agent evaluation capability changed.",
+        IReadOnlyCollection<AIConceptTag>? conceptTags = null) => new(
         Guid.NewGuid(),
         Guid.NewGuid(),
         "Microsoft",
@@ -390,18 +518,34 @@ public sealed class ReportingTests
         "Preview",
         SourceClass.CurrentOfficial,
         DateTimeOffset.UtcNow,
-        new Uri("https://current.example.com"));
+        new Uri("https://current.example.com"),
+        conceptTags ?? new[] { AIConceptTag.Evaluation });
 
-    private static TrendEvidence Trend(string topic, string finding, Uri? sourceUrl = null) => new(
-        Guid.NewGuid(),
-        Guid.NewGuid(),
-        topic,
-        "2026",
-        TrendEvidencePeriodProvenance.SourceContent,
-        finding,
-        "Trend evidence summary.",
-        0.8m,
-        sourceUrl ?? new Uri("https://trend.example.com"),
-        "42%",
-        "Trend Report");
+    private static TrendEvidence Trend(
+        string topic,
+        string finding,
+        Uri? sourceUrl = null,
+        IReadOnlyCollection<AIConceptTag>? conceptTags = null,
+        TrendFamily trendFamily = TrendFamily.Unknown,
+        string period = "2026",
+        TrendEvidencePeriodProvenance periodProvenance = TrendEvidencePeriodProvenance.SourceContent,
+        decimal confidence = 0.8m,
+        string publicationName = "Trend Report")
+    {
+        var evidence = new TrendEvidence(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            topic,
+            period,
+            periodProvenance,
+            finding,
+            "Trend evidence summary.",
+            confidence,
+            sourceUrl ?? new Uri("https://trend.example.com"),
+            "42%",
+            publicationName,
+            conceptTags);
+        evidence.UpdateTrendFamily(trendFamily);
+        return evidence;
+    }
 }

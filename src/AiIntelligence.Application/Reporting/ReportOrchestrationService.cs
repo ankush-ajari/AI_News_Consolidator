@@ -56,16 +56,31 @@ public sealed class ReportOrchestrationService
                 foreach (var candidate in selection.Diagnostics)
                 {
                     _logger.LogInformation(
-                        "- Id: {Id}; Topic: {Topic}; Period: {Period}; Source: {Source}; Source URL: {Url}; SameSourceEvidence: {SameSource}; Match reasons: {MatchReason}; Candidate score/rank: {Score}/{Rank}",
+                        "- Id: {Id}; Topic: {Topic}; Period: {Period} ({Provenance}); Source: {Source}; Source URL: {Url}; Family: {Family}; Confidence: {Confidence:0.##}; SameSourceEvidence: {SameSource}; Eligible={Eligible}; Eligibility={Eligibility}; Match reasons: {MatchReason}; Candidate score/rank: {Score}/{Rank}; Topic={TopicCount}; Category={CategoryCount}; Product={ProductScore}; Concept={ConceptCount}; SpecificConcept={SpecificConcept}; ConceptTags={ConceptTags}; PeriodScore={PeriodScore}; ConfidenceScore={ConfidenceScore}; FamilyCompatibility={FamilyScore}; IndependentScore={IndependentScore}",
                         candidate.TrendEvidenceId,
                         candidate.Topic,
                         candidate.Period,
+                        candidate.PeriodProvenance,
                         candidate.SourceName,
                         candidate.SourceUrl,
+                        candidate.TrendFamily,
+                        candidate.Confidence,
                         candidate.SameSourceEvidence ? "Yes" : "No",
+                        candidate.Eligible ? "Yes" : "No",
+                        candidate.EligibilityReason,
                         candidate.MatchReason,
                         candidate.Score,
-                        candidate.Rank);
+                        candidate.Rank,
+                        candidate.TopicMatchCount,
+                        candidate.CategoryMatchCount,
+                        candidate.ProductScore,
+                        candidate.ConceptMatchCount,
+                        candidate.SpecificConceptScore,
+                        candidate.ConceptMatchTags,
+                        candidate.PeriodScore,
+                        candidate.ConfidenceScore,
+                        candidate.FamilyCompatibilityScore,
+                        candidate.IndependentSourceScore);
                 }
             }
 

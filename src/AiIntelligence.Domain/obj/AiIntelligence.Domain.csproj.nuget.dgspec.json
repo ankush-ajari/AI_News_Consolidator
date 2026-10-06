@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj": {}
+    "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj": {}
   },
   "projects": {
-    "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj": {
+    "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj",
+        "projectUniqueName": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj",
         "projectName": "AiIntelligence.Domain",
-        "projectPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj",
+        "projectPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj",
         "packagesPath": "C:\\Users\\ajari_a\\.nuget\\packages\\",
-        "outputPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\obj\\",
+        "outputPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

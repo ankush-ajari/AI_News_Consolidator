@@ -3509,11 +3509,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj": {
-              "projectPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj"
+            "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj": {
+              "projectPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj"
             },
-            "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj": {
-              "projectPath": "e:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj"
+            "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj": {
+              "projectPath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Domain\\AiIntelligence.Domain.csproj"
             }
           }
         }
