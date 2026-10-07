@@ -1,383 +1,35 @@
 # AI Technology Intelligence Report
 
-Generated: 2026-10-06T07:17:53.3346490+00:00
-Reporting period: Mock
+Generated: 2026-10-07T05:16:36.9678562+00:00
+Reporting period: 2026
 
 ## Executive / Overall Summary
-Mock report generated for workflow validation only.
+Processed 3 current developments and created 3 current-development-to-trend correlations.
 
 ## Key Current Developments
 ### Foundry Dev Pack setup for Microsoft Foundry development
 - What changed: Microsoft announced Foundry Dev Pack, an all-in-one installer that prepares a machine for Microsoft Foundry development by installing tools for terminal, VS Code, and coding agents, with optional components based on the environment.
-- Vendor / technology: Foundry Dev Pack
-- Why it matters: Mock relevance summary.
+- Vendor / technology: Microsoft / Foundry Dev Pack
+- Why it matters: Relevant to Developer tools; release stage: Foundry Canvas (preview).
 - Source: https://devblogs.microsoft.com/foundry/foundry-devpack-announcement/
 
 ### Azure AI Speech LLM 2607 model update for speech-to-text
 - What changed: Microsoft announced Azure AI Speech LLM 2607, a model update that improves multilingual and mixed-language recognition, lowers latency, and simplifies domain-specific customization via enhanced phrase lists, available through Fast API and Real-Time API with automatic deployment.
-- Vendor / technology: Azure AI Speech (LLM Speech 2607)
-- Why it matters: Mock relevance summary.
+- Vendor / technology: Microsoft / Azure AI Speech (LLM Speech 2607)
+- Why it matters: Relevant to Speech Recognition Model Update; release stage: Unknown.
 - Source: https://devblogs.microsoft.com/foundry/announcing-azure-ai-speech-llm-2607/
 
 ### Microsoft Foundry July/August 2026 updates
 - What changed: Microsoft Foundry’s July and August 2026 roundup announces GA for Hosted Agents, Voice Live integration, and Toolboxes; expands Claude tools hosted on Azure; updates Model Router regions and model pool; adds Foundry Local capabilities on Azure Local; and advances Python, JavaScript/TypeScript, Java, and .NET SDKs with version and runtime changes.
-- Vendor / technology: Microsoft Foundry
-- Why it matters: Mock relevance summary.
+- Vendor / technology: Microsoft / Microsoft Foundry
+- Why it matters: Relevant to AI platform updates; release stage: Mixed (GA and Preview).
 - Source: https://devblogs.microsoft.com/foundry/whats-new-in-microsoft-foundry-july-august-2026/
 
 ## Broader AI Trends
-### Workforce reduction expectations
-- Supporting evidence: The report notes that one‑third of organizations expect AI-driven workforce reductions in the next year, while nearly half anticipate little to no change.
-- Time period: Coming year (survey expectation) (SourceContent)
-- Confidence: 0.6
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Organizational AI adoption
-- Supporting evidence: The report notes broad AI adoption across organizations in 2025, with generative AI usage widespread but AI agent deployment still minimal.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.73
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Convergence of top model performance (Arena Elo)
-- Supporting evidence: As of March 2026, leading models are tightly clustered in Arena Elo scores, indicating narrowing performance differences among top providers.
-- Time period: March 2026 (SourceContent)
-- Confidence: 0.76
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### AI labor market impacts for young software developers
-- Supporting evidence: The report points to a sharp employment decline for younger software developers relative to 2024, indicating uneven labor market effects.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.61
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Consumer surplus from generative AI
-- Supporting evidence: The chapter reports a large year‑over‑year increase in U.S. consumer surplus and user counts for generative AI tools.
-- Time period: Early 2026 (SourceContent)
-- Confidence: 0.77
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### U.S. leadership in private AI investment
-- Supporting evidence: The chapter reports that U.S. private AI investment far exceeds China and Europe, including a 23x multiple over China in 2025.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.8
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Generative AI consumer adoption
-- Supporting evidence: The report states rapid global adoption of generative AI with notable country-level variation and specific adoption rates.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.66
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### AI labor market impact on young software developers
-- Supporting evidence: The report notes a notable employment drop among young software developers in 2024.
-- Time period: 2024 (SourceContent)
-- Confidence: 0.61
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Consumer surplus from generative AI
-- Supporting evidence: The report estimates a large and growing U.S. consumer surplus from generative AI, rising from $112B to $172B annually with median value per user tripling.
-- Time period: Early 2026 (SourceContent)
-- Confidence: 0.7
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Open vs. closed model performance gap
-- Supporting evidence: The report states the closed-model lead widened to 3.3% by March 2026 after a 0.5% gap in August 2024, with closed models dominating the top tier.
-- Time period: March 2026 (compared with August 2024) (SourceContent)
-- Confidence: 0.76
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Benchmark reliability concerns
-- Supporting evidence: A review found substantial invalid question rates across benchmarks, including up to 42% on GSM8K, raising concerns about evaluation reliability.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.69
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### AI company compute spending and capex escalation
-- Supporting evidence: The report notes increased compute spending and cloud capex as AI companies scale revenue, with specific 2025 spending figures cited.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.75
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Expected AI-driven workforce reductions
-- Supporting evidence: The report indicates significant expectations of AI-related workforce reductions despite limited macro job losses so far.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.6
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Jagged intelligence in reasoning vs. basic skills
-- Supporting evidence: The report contrasts IMO gold-level performance with low analog clock-reading accuracy, highlighting uneven capability across task types.
-- Time period: 2024–2025 (SourceContent)
-- Confidence: 0.78
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Expected workforce reductions from AI
-- Supporting evidence: The report indicates that one-third of surveyed organizations anticipate workforce reductions linked to AI in the next year.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.6
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Autonomous vehicle deployment scale-up
-- Supporting evidence: Stanford HAI reports large-scale deployments and strong year-over-year growth in China’s driverless rides.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.71
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### U.S.–China model performance gap
-- Supporting evidence: The report indicates the gap stayed in single digits, with a 2.7% lead for the top U.S. model as of March 2026 and parity reached in Feb 2025.
-- Time period: March 2026 (context: Feb 2025) (SourceContent)
-- Confidence: 0.73
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Industrial robot installations by country
-- Supporting evidence: The report reports China’s share of industrial robot installations rose to 54% in 2024, with Taiwan leading year‑over‑year growth at 33%.
-- Time period: 2024 (vs. 2023) (SourceContent)
-- Confidence: 0.68
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Organizational AI adoption
-- Supporting evidence: The report states that overall AI and generative AI adoption increased in 2025, with agent usage still minimal.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.74
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Top model performance convergence
-- Supporting evidence: The Arena Leaderboard shows a narrow Elo spread among leading model providers, indicating performance convergence.
-- Time period: March 2026 (SourceContent)
-- Confidence: 0.7
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### AI agent task performance improvement
-- Supporting evidence: The report shows a large OSWorld accuracy jump to 66.3% in 2025, narrowing the human gap to 6 points while highlighting remaining failure rates.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.77
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Global corporate AI investment growth
-- Supporting evidence: The report highlights a sharp 2025 acceleration in AI investment led by private and generative AI funding, with multiple metrics (growth rates, share of total, and funding events) showing strong expansion.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.74
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Generative AI adoption speed
-- Supporting evidence: The chapter compares generative AI adoption speed to prior technologies and reports cross‑country adoption rates.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.71
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Labor market impacts in AI‑exposed roles
-- Supporting evidence: The report highlights declines for younger software developers and expectations of AI‑related workforce reductions.
-- Time period: 2024–2025 (SourceContent)
-- Confidence: 0.68
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Benchmark saturation and human-level performance
-- Supporting evidence: The report notes a 30-point one-year jump on Humanity's Last Exam, indicating benchmarks are being saturated quickly as AI performance accelerates.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.77
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Robotics performance gap between simulations and real homes
-- Supporting evidence: The report contrasts 12% success in real households with 89.4% success in RLBench simulations, highlighting a large sim-to-real gap.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.75
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Productivity gains from AI in structured work
-- Supporting evidence: The report summarizes studies showing sizable productivity improvements in structured work, with specific percentage gains across functions.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.66
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Open vs. closed model performance gap
-- Supporting evidence: The report states the closed–open gap increased to 3.3% by March 2026 after being 0.5% in August 2024 and notes the majority of top-10 models are closed.
-- Time period: August 2024 to March 2026 (SourceContent)
-- Confidence: 0.77
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Top model performance convergence on Arena Elo
-- Supporting evidence: The report states that top models are within 25 Elo points on the Arena Leaderboard and lists the leading Elo scores as of March 2026.
-- Time period: March 2026 (SourceContent)
-- Confidence: 0.74
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Generative AI consumer value
-- Supporting evidence: The report estimates U.S. consumer surplus from generative AI rose from $112B to $172B annually by early 2026.
-- Time period: Early 2026 vs. early 2025 (SourceContent)
-- Confidence: 0.7
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### AI agent task completion progress
-- Supporting evidence: The report states OSWorld accuracy increased from ~12% to 66.3%, nearing human performance by 6 points.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.76
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Labor market impacts of AI
-- Supporting evidence: The report indicates nearly 20% employment decline for young software developers since 2024 and that one‑third of employers anticipate workforce reductions.
-- Time period: 2024–2025 (SourceContent)
-- Confidence: 0.66
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Generative AI adoption by population
-- Supporting evidence: The report notes generative AI adoption hitting 53% in three years, with country-level adoption ranging from 28.3% (U.S.) to 64% (UAE).
-- Time period: Three-year period ending by the report’s publication (exact years not specified) (SourceContent)
-- Confidence: 0.61
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### AI in professional domains
-- Supporting evidence: The report notes professional-domain evaluations reaching 60–90% and tight clustering among top models, while emphasizing reliability challenges.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.72
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Industrial robot installations in China
-- Supporting evidence: The report shows China’s growing share of global industrial robot installations in 2024, with specific global share and comparative growth figures.
-- Time period: 2024 (SourceContent)
-- Confidence: 0.65
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Cloud infrastructure spending and AI compute costs
-- Supporting evidence: The report links accelerating AI revenues with rising compute spend and record cloud provider capex, citing Google’s 2025 capex figure.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.62
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### AI benchmark saturation and rapid capability gains
-- Supporting evidence: The report notes a 30-point jump on Humanity's Last Exam in one year and says evaluations intended to be challenging for years are saturated in months.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.74
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Private AI investment leadership by country
-- Supporting evidence: The report highlights the U.S. lead in private AI investment and notes an estimated $184B of China guidance fund deployment (2000–2023).
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.64
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Open vs. closed model performance gap
-- Supporting evidence: The report compares March 2026 and August 2024, indicating a widening lead for closed models and noting that 6/10 top Arena models are closed.
-- Time period: March 2026 (comparison to August 2024) (SourceContent)
-- Confidence: 0.78
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Open vs. closed model performance gap
-- Supporting evidence: Stanford HAI notes the gap widened again by March 2026 following a near parity in mid-2024.
-- Time period: August 2024–March 2026 (SourceContent)
-- Confidence: 0.73
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Global corporate AI investment scale
-- Supporting evidence: Figure text in the chapter indicates record total corporate AI investment in 2025 with private investment and M&A as the largest components.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.73
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Organizational AI adoption
-- Supporting evidence: The report states 88% of surveyed organizations adopted AI in 2025, with generative AI in at least one business function at 70%.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.72
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Benchmark saturation in AI capability evaluation
-- Supporting evidence: The report states that Humanity's Last Exam saw a 30-point gain in a single year, indicating rapid benchmark saturation.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.74
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Industrial robot installation share in China
-- Supporting evidence: The report documents China’s dominant share of global industrial robot installations in 2024.
-- Time period: 2024 (SourceContent)
-- Confidence: 0.64
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Robotics performance gap between lab and real-world
-- Supporting evidence: The report highlights a large gap between real-world task success and simulated manipulation performance.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.7
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### AI company revenue and compute spending
-- Supporting evidence: The report notes rapid revenue scaling for frontier companies alongside rising compute spend, citing Google’s $150B+ 2025 capex.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.63
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Generative AI public adoption
-- Supporting evidence: The report highlights rapid adoption and cross-country variation correlated with GDP per capita.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.65
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Industrial robot installations led by China
-- Supporting evidence: The report notes China’s expanding share of global industrial robot installations and cites 2024 share and growth figures.
-- Time period: 2024 (SourceContent)
-- Confidence: 0.72
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### China government AI funding
-- Supporting evidence: The report notes government guidance funds as a major source of AI financing in China over two decades.
-- Time period: 2000-2023 (SourceContent)
-- Confidence: 0.6
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Autonomous vehicle deployment scale
-- Supporting evidence: The report cites large-scale deployments in 2025 with hundreds of thousands of weekly Waymo trips and 11 million Apollo Go rides (+175% YoY).
-- Time period: 2025 (SourceContent)
-- Confidence: 0.78
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Productivity gains from AI in structured work
-- Supporting evidence: The report summarizes studies showing sizable productivity gains in structured tasks such as customer support, software development, and marketing.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.64
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### Global corporate AI investment growth
-- Supporting evidence: The report states that global corporate AI investment more than doubled in 2025, with private investment up 127.5% and generative AI funding growing more than 200%.
-- Time period: 2025 (SourceContent)
-- Confidence: 0.71
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-
-### U.S.–China model performance gap
-- Supporting evidence: The report highlights a small 2.7% lead for the top U.S. model as of March 2026 after multiple lead changes since early 2025.
-- Time period: March 2026 (SourceContent)
-- Confidence: 0.74
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### Video generation models and physical reasoning
-- Supporting evidence: The report notes that testing across 18,000+ videos shows capabilities such as simulating buoyancy and solving mazes without task-specific training.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.64
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-
-### AI startup growth
-- Supporting evidence: The report attributes faster growth to AI-first startups, citing Standard Metrics.
+### Enterprise AI adoption and spending
+- Supporting evidence: The report cites Ramp data showing paid AI tool adoption among U.S. businesses rose to 44% from 5% in 2023, with average contracts at $530,000.
 - Time period: 2025-10-09 (SourceContent)
-- Confidence: 0.74
-- Sources: https://www.stateof.ai/2025-report-launch
-
-### AI practitioner usage and willingness to pay
-- Supporting evidence: The report’s practitioner survey indicates near-universal AI use and a high share of out-of-pocket payment for AI tools.
-- Time period: 2025-10-09 (SourceContent)
-- Confidence: 0.83
-- Sources: https://www.stateof.ai/2025-report-launch
-
-### Regulatory influences on responsible AI practices
-- Supporting evidence: Survey results show declining GDPR influence, rising citations of AI-specific standards, and fewer organizations reporting no regulatory influence.
-- Time period: 2024-2025 (SourceContent)
-- Confidence: 0.8
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/responsible-ai
-
-### Global AI competition in reasoning and coding
-- Supporting evidence: The report states DeepSeek, Qwen, and Kimi have closed the gap with GPT-5 across reasoning and coding, positioning China as a credible #2.
-- Time period: 2025-10-09 (SourceContent)
-- Confidence: 0.58
-- Sources: https://www.stateof.ai/2025-report-launch
-
-### AI industry revenue scale
-- Supporting evidence: The report states the top labs/companies collectively reach nearly $20B in annual revenue.
-- Time period: 2025-10-09 (SourceContent)
-- Confidence: 0.7
+- Confidence: 0.86
 - Sources: https://www.stateof.ai/2025-report-launch
 
 ### Model capability-to-price improvements
@@ -386,160 +38,111 @@ Mock report generated for workflow validation only.
 - Confidence: 0.71
 - Sources: https://www.stateof.ai/2025-report-launch
 
-### Responsible AI incident frequency
-- Supporting evidence: The chapter reports a year-over-year increase in documented AI incidents in the AI Incident Database.
-- Time period: 2024-2025 (SourceContent)
-- Confidence: 0.78
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/responsible-ai
-
-### Enterprise AI adoption and spending
-- Supporting evidence: The report cites Ramp data showing paid AI tool adoption among U.S. businesses rose to 44% from 5% in 2023, with average contracts at $530,000.
-- Time period: 2025-10-09 (SourceContent)
-- Confidence: 0.86
-- Sources: https://www.stateof.ai/2025-report-launch
-
-### Hallucination rates in AI models
-- Supporting evidence: The chapter reports high and variable hallucination rates and large accuracy drops when moving from knowledge to belief framing.
-- Time period: 2026 (SourceMetadata)
-- Confidence: 0.72
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/responsible-ai
-
-### Responsible AI governance formalization in organizations
-- Supporting evidence: The chapter reports growth in AI governance roles and a decline in organizations lacking responsible AI policies, alongside quantified barriers to implementation.
+### AI agent task performance improvement
+- Supporting evidence: The report shows a large OSWorld accuracy jump to 66.3% in 2025, narrowing the human gap to 6 points while highlighting remaining failure rates.
 - Time period: 2025 (SourceContent)
-- Confidence: 0.8
-- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/responsible-ai
+- Confidence: 0.77
+- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
+
+### AI agent task completion progress
+- Supporting evidence: The report states OSWorld accuracy increased from ~12% to 66.3%, nearing human performance by 6 points.
+- Time period: 2025 (SourceContent)
+- Confidence: 0.76
+- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
+
+### AI benchmark saturation and rapid capability gains
+- Supporting evidence: The report notes a 30-point jump on Humanity's Last Exam in one year and says evaluations intended to be challenging for years are saturated in months.
+- Time period: 2025 (SourceContent)
+- Confidence: 0.74
+- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
+
+### Convergence of top model performance (Arena Elo)
+- Supporting evidence: As of March 2026, leading models are tightly clustered in Arena Elo scores, indicating narrowing performance differences among top providers.
+- Time period: March 2026 (SourceContent)
+- Confidence: 0.76
+- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
+
+### Open vs. closed model performance gap
+- Supporting evidence: The report states the closed-model lead widened to 3.3% by March 2026 after a 0.5% gap in August 2024, with closed models dominating the top tier.
+- Time period: March 2026 (compared with August 2024) (SourceContent)
+- Confidence: 0.76
+- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
+
+### Organizational AI adoption
+- Supporting evidence: The report notes broad AI adoption across organizations in 2025, with generative AI usage widespread but AI agent deployment still minimal.
+- Time period: 2025 (SourceContent)
+- Confidence: 0.73
+- Sources: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
 
 ## Current Development vs Trend
-### Supports: Microsoft announced Foundry Dev Pack, an all-in-one installer that prepares a machine for Microsoft Foundry development by installing tools for terminal, VS Code, and coding agents, with optional components based on the environment.
-- Related trend: U.S. business adoption of paid AI tools has surged, with larger contract sizes reported.
-- Explanation: Mock correlation: selected trend evidence appears related by deterministic keyword overlap.
-- Confidence: 0.5
-- Sources: https://devblogs.microsoft.com/foundry/foundry-devpack-announcement/, https://www.stateof.ai/2025-report-launch
+### InsufficientEvidence: Microsoft announced Foundry Dev Pack, an all-in-one installer that prepares a machine for Microsoft Foundry development by installing tools for terminal, VS Code, and coding agents, with optional components based on the environment.
+- Related trend: Organizational AI adoption continued to rise, while AI agent deployment remains limited.
+- Explanation: The intelligence item describes a developer tooling installer for Microsoft Foundry, but the trend evidence addresses organizational AI adoption levels and limited AI agent deployment. There is no direct evidence in the provided sources linking the Foundry Dev Pack announcement to organizational adoption or agent deployment metrics, so a correlation cannot be established.
+- Confidence: 0.22
+- Sources: https://devblogs.microsoft.com/foundry/foundry-devpack-announcement/, https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
 
-### Supports: Microsoft announced Azure AI Speech LLM 2607, a model update that improves multilingual and mixed-language recognition, lowers latency, and simplifies domain-specific customization via enhanced phrase lists, available through Fast API and Real-Time API with automatic deployment.
-- Related trend: Frontier model capability is outpacing benchmark difficulty, with rapid gains that compress the useful lifespan of evaluation benchmarks.
-- Explanation: Mock correlation: selected trend evidence appears related by deterministic keyword overlap.
-- Confidence: 0.5
+### InsufficientEvidence: Microsoft announced Azure AI Speech LLM 2607, improving multilingual and mixed-language recognition, lowering latency, and simplifying domain-specific customization via enhanced phrase lists, available through Fast API and Real-Time API with automatic deployment.
+- Related trend: AI benchmark saturation and rapid capability gains (2025).
+- Explanation: The IntelligenceItem describes a specific speech-to-text model update and deployment features. The trend evidence discusses benchmark saturation and rapid gains in frontier model evaluations, but does not mention speech recognition, Azure AI Speech, or similar evaluation benchmarks. There is not enough evidence to connect this specific update to the reported benchmark trend.
+- Confidence: 0.19
 - Sources: https://devblogs.microsoft.com/foundry/announcing-azure-ai-speech-llm-2607/, https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
 
-### Supports: Microsoft Foundry’s July and August 2026 roundup announces GA for Hosted Agents, Voice Live integration, and Toolboxes; expands Claude tools hosted on Azure; updates Model Router regions and model pool; adds Foundry Local capabilities on Azure Local; and advances Python, JavaScript/TypeScript, Java, and .NET SDKs with version and runtime changes.
-- Related trend: Organizational AI adoption continued to rise, while AI agent deployment remains limited.
-- Explanation: Mock correlation: selected trend evidence appears related by deterministic keyword overlap.
-- Confidence: 0.5
-- Sources: https://devblogs.microsoft.com/foundry/whats-new-in-microsoft-foundry-july-august-2026/, https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
+### InsufficientEvidence: Microsoft Foundry’s July/August 2026 roundup announces GA for Hosted Agents, Voice Live integration, Toolboxes, expanded Claude tools hosted on Azure, Model Router updates, Foundry Local capabilities on Azure Local, and SDK updates.
+- Related trend: AI agent task performance improvement (2025): Agents improved on benchmarks but still fail about one in three attempts.
+- Explanation: The Microsoft Foundry update describes product feature releases (e.g., Hosted Agents GA and tooling updates) but provides no performance results or benchmark outcomes. The trend evidence reports benchmarked agent task performance changes in 2025. Without explicit performance data or linkage between the Foundry features and benchmark outcomes, the relationship cannot be established from the supplied sources.
+- Confidence: 0.35
+- Sources: https://devblogs.microsoft.com/foundry/whats-new-in-microsoft-foundry-july-august-2026/, https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
 
 ## Persona Sections
 ### Developer
-- Relevance: Medium (Mock relevance based on supplied evidence.)
-- Relevant development: Mock Developer: review Foundry Dev Pack setup for Microsoft Foundry development.
-- Specific impact: Implementation impact across APIs, SDKs, architecture, and integration patterns.
-- Trend implication: U.S. business adoption of paid AI tools has surged, with larger contract sizes reported.
-- Recommended actions: Prototype API usage; Assess SDK fit; Review migration implications
-- Questions to explore: What evidence is actionable?; What caveats remain?
-- Watch items: Supports
+- Relevance: High (High)
+- Relevant development: Microsoft released Foundry Dev Pack (all-in-one installer for Foundry development tools), updated Azure AI Speech to LLM 2607 with improved multilingual recognition, lower latency, and easier domain customization via enhanced phrase lists (Fast API and Real-Time API, automatic deployment), and published Foundry platform updates including Hosted Agents GA, Voice Live integration, Toolboxes, expanded Claude tools hosted on Azure, Model Router region/model pool updates, Foundry Local on Azure Local, and SDK/runtime changes across Python, JS/TS, Java, and .NET.
+- Specific impact: Developers get a streamlined local setup path via Dev Pack, new speech-to-text behavior and customization options accessible through existing APIs, and a broader Foundry feature set that affects agent workflows, voice integrations, routing across model pools/regions, on-prem/Azure Local deployment patterns, and SDK/runtime compatibility for client integrations.
+- Trend implication: The supplied trend reports describe broader AI adoption and agent benchmark progress, but the correlations are InsufficientEvidence; these trends provide context only and do not confirm or explain the Foundry or Azure Speech updates.
+- Recommended actions: Assess Foundry Dev Pack for standardizing developer workstation setup and onboarding, including optional components needed for your environment.; Review Azure AI Speech LLM 2607 integration paths via Fast API and Real-Time API, and test enhanced phrase list customization for domain terms and mixed-language use cases.; Audit Foundry SDK version/runtime changes (Python, JS/TS, Java, .NET) for compatibility and plan upgrades where client libraries or runtimes are affected.; Evaluate Hosted Agents GA, Voice Live integration, and Toolboxes for current agent or voice workflows, and identify integration points that change architecture or dependencies.; Check Model Router region and model pool updates for latency/availability implications in your deployment regions.; Examine Foundry Local on Azure Local for scenarios requiring local execution or hybrid deployment constraints.
+- Questions to explore: Which Dev Pack optional components map to our target OS and toolchain, and do they conflict with existing setup scripts?; What measurable latency and accuracy changes appear in our multilingual or mixed-language speech workloads using LLM 2607?; How do enhanced phrase lists need to be structured for our domain-specific vocabulary, and are there limits that affect customization?; Do the SDK/runtime changes introduce breaking changes or new minimum runtime requirements for our services?; Which regions now support Model Router updates, and how does model pool selection affect routing logic or cost?; What capabilities and limitations does Foundry Local on Azure Local impose compared with cloud-only Foundry services?; How do Hosted Agents GA and Toolboxes alter agent orchestration patterns or required API calls?
+- Watch items: Further Foundry SDK version/runtime changes and deprecations across Python, JS/TS, Java, and .NET.; Additional updates to Model Router regions/model pools that could affect routing configuration.; New iterations of Azure AI Speech models or API behaviors that may change latency or customization handling.; Changes to Hosted Agents, Voice Live integration, or Toolboxes that impact agent and voice architecture.
 
 ### QA
-- Relevance: Medium (Mock relevance based on supplied evidence.)
-- Relevant development: Mock QA: review Foundry Dev Pack setup for Microsoft Foundry development.
-- Specific impact: Testing impact across evaluation, nondeterminism, regression, observability, and reliability.
-- Trend implication: U.S. business adoption of paid AI tools has surged, with larger contract sizes reported.
-- Recommended actions: Design evaluation cases; Plan nondeterministic regression tests; Review observability tooling
-- Questions to explore: What evidence is actionable?; What caveats remain?
-- Watch items: Supports
+- Relevance: Low (Low)
+- Relevant development: Microsoft announced Azure AI Speech LLM 2607, a speech-to-text model update that improves multilingual and mixed-language recognition, lowers latency, and simplifies domain-specific customization via enhanced phrase lists, available through Fast API and Real-Time API with automatic deployment.
+- Specific impact: QA impact appears limited to teams that validate speech-to-text features on Azure AI Speech; the update implies potential changes in recognition behavior and latency that could affect existing regression baselines and mu…
+- Trend implication: A related trend about benchmark saturation is broader context only; the supplied evidence does not link this specific speech model update to that trend, so no direct implication for QA evaluation practices can be inferred.
+- Recommended actions: If your product relies on Azure AI Speech, prioritize regression runs that include multilingual and mixed-language inputs and latency assertions to detect behavior shifts after the automatic deployment.
+- Questions to explore: Are current test suites covering mixed-language scenarios and domain phrase-list customization paths impacted by this update?
+- Watch items: Any post-update changes in accuracy for multilingual or mixed-language cases observed in QA telemetry.
 
 ### BusinessAnalyst
-- Relevance: Medium (Mock relevance based on supplied evidence.)
-- Relevant development: Mock BusinessAnalyst: review Foundry Dev Pack setup for Microsoft Foundry development.
-- Specific impact: Requirement and workflow impact for use cases, acceptance criteria, and stakeholder questions.
-- Trend implication: U.S. business adoption of paid AI tools has surged, with larger contract sizes reported.
-- Recommended actions: Refine acceptance criteria; Map workflow impact; Prepare stakeholder questions
-- Questions to explore: Which requirements change?; Which workflows are affected?
-- Watch items: Supports
+- Relevance: High (High)
+- Relevant development: Microsoft released Foundry Dev Pack (all‑in‑one installer for Foundry development tools), Azure AI Speech LLM 2607 (improved multilingual/mixed-language speech‑to‑text with lower latency and enhanced phrase lists via Fast and Real‑Time APIs with automatic deployment), and Microsoft Foundry July/August 2026 updates including Hosted Agents GA, Voice Live integration, Toolboxes, expanded Claude tools hosted on Azure, Model Router region/model pool updates, Foundry Local on Azure Local, and SDK updates across Python, JavaScript/TypeScript, Java, and .NET.
+- Specific impact: Business workflows that rely on speech transcription could see measurable UX improvements (lower latency, better multilingual handling) and simpler domain customization via phrase lists, affecting acceptance criteria for accuracy and response time. Foundry’s Hosted Agents GA and Voice Live integration expand the range of business processes that can be automated or voice‑enabled, but requirements should capture task boundaries, human‑in‑the‑loop needs, and failure handling. Toolboxes and Model Router updates introduce capability selection and routing considerations that may change nonfunctional requirements such as regional availability, latency, and model choice governance. Foundry Local on Azure Local enables on‑prem/edge deployment options that could satisfy data residency or offline requirements but may alter operating constraints. The Dev Pack reduces developer onboarding friction and could shorten time‑to‑prototype for business stakeholders.
+- Trend implication: Broader reports show rising organizational AI adoption and ongoing agent performance limitations, but the supplied evidence does not connect these trends directly to the Foundry updates; treat the trends as context only, not as proof of impact from these releases.
+- Recommended actions: Update business requirements and acceptance criteria for any speech‑to‑text workflows to include multilingual/mixed‑language coverage, latency targets, and phrase‑list customization rules aligned with the new Azure AI Speech LLM 2607 capabilities.; Reassess candidate processes for automation using Hosted Agents GA and Voice Live integration, explicitly defining task scope, escalation paths, and error handling expectations for agent‑driven workflows.; Capture deployment constraints (data residency, offline/edge needs) and evaluate whether Foundry Local on Azure Local is required for specific business units or regulated workflows.; Align stakeholder expectations on regional availability and model selection governance in light of Model Router region/model pool updates and expanded Claude tools hosted on Azure.
+- Questions to explore: Which business processes rely on speech transcription today, and what latency/accuracy thresholds are required for user acceptance?; Are there multilingual or mixed‑language scenarios where improved recognition would materially change outcomes or reduce manual correction costs?; Which workflows are suitable for Hosted Agents, and where is human review mandatory due to risk or compliance?; Do any business units require on‑prem or edge deployments that would justify Foundry Local on Azure Local?; What regional availability or data residency constraints should be reflected in model routing and tool selection?
+- Watch items: SDK version and runtime changes across Python, JavaScript/TypeScript, Java, and .NET that could affect integration timelines or maintenance plans.; Model Router region/model pool updates that might change available models or latency for targeted geographies.; Adoption maturity of Hosted Agents and Voice Live in production use cases, especially for error handling and governance requirements.; Operational impact of automatic deployment for Azure AI Speech LLM 2607 on change control and testing cycles.
 
 ### ProjectManager
-- Relevance: Medium (Mock relevance based on supplied evidence.)
-- Relevant development: Mock ProjectManager: review Foundry Dev Pack setup for Microsoft Foundry development.
-- Specific impact: Delivery impact across dependencies, schedule, risks, governance, and pilot readiness.
-- Trend implication: U.S. business adoption of paid AI tools has surged, with larger contract sizes reported.
-- Recommended actions: Assess delivery risk; Plan pilot milestones; Identify dependency owners
-- Questions to explore: What risks affect delivery?; What governance is needed?
-- Watch items: Supports
+- Relevance: Low (Low)
+- Relevant development: Microsoft announced the Foundry Dev Pack installer and a Foundry platform update (Hosted Agents GA, SDK changes, Foundry Local, Toolboxes, and routing updates).
+- Specific impact: For project planning, these items mainly affect developer environment setup and potential dependency changes in SDK versions; they do not by themselves indicate a required schedule change unless the team is adopting Foun…
+- Trend implication: Related trend items about organizational AI adoption and agent performance are broader context only; the provided sources do not establish a direct link between these Foundry updates and those trends.
+- Recommended actions: If your project uses Microsoft Foundry, log the Dev Pack and SDK/runtime updates as potential setup/dependency changes and assess whether they require minor onboarding or upgrade tasks. Otherwise, no immediate delivery impact is indicated.
+- Questions to explore: Is the team actively using Microsoft Foundry or planning to adopt Hosted Agents/Foundry Local in this release cycle?
+- Watch items: Release notes for Foundry SDK/runtime changes that could introduce breaking changes or required migrations
 
 ### Sales
-- Relevance: Medium (Mock relevance based on supplied evidence.)
-- Relevant development: Mock Sales: review Foundry Dev Pack setup for Microsoft Foundry development.
-- Specific impact: Customer conversation impact across differentiation, adoption signals, caveats, and what not to oversell.
-- Trend implication: U.S. business adoption of paid AI tools has surged, with larger contract sizes reported.
-- Recommended actions: Frame customer discussion themes; Document limitations; Avoid overselling unproven claims
-- Questions to explore: What evidence is actionable?; What caveats remain?
-- Watch items: Supports
+- Relevance: High (High)
+- Relevant development: Microsoft announced Foundry Dev Pack to simplify machine setup for Microsoft Foundry development; Azure AI Speech LLM 2607 with improved multilingual/mixed-language recognition, lower latency, and easier phrase-list customization via Fast and Real-Time APIs; and July/August 2026 Foundry updates including Hosted Agents GA, Voice Live integration, Toolboxes, expanded Claude tools hosted on Azure, Model Router updates, Foundry Local on Azure Local, and SDK updates.
+- Specific impact: Sales can position faster developer onboarding (Dev Pack), improved speech-to-text outcomes and lower latency for multilingual customer scenarios (Speech LLM 2607), and expanded platform capabilities for enterprise buyers (Hosted Agents GA, Voice Live, Toolboxes, Azure-hosted Claude tools, Model Router, Foundry Local). These provide concrete discussion points for customers evaluating deployment speed, speech accuracy for mixed-language use cases, on-prem/edge needs via Azure Local, and toolchain readiness across SDKs.
+- Trend implication: Broader reports indicate rising organizational AI adoption while agent deployment remains limited and agent task failure rates persist; however, the supplied evidence does not link these Foundry announcements to those trends. Treat the trends as context for cautious expectations around agent maturity, not as proof of performance or adoption outcomes from these releases.
+- Recommended actions: Update sales talk tracks to highlight Dev Pack’s simplified setup and optional components for environment-specific installs when developer onboarding speed is a decision factor.; For speech-related opportunities, emphasize LLM 2607 improvements in multilingual/mixed-language recognition, lower latency, and phrase-list customization, and confirm API choice (Fast vs Real-Time) during discovery.; Position Hosted Agents GA and Toolboxes as packaging and orchestration options, while qualifying use cases and reliability requirements given broader market caution around agent maturity.; For enterprise buyers with locality or data residency needs, introduce Foundry Local on Azure Local and validate fit for on-prem/edge scenarios.; Align pricing/value discussions with Model Router updates and Azure-hosted Claude tools, focusing on availability and governance needs rather than implied performance leadership.
+- Questions to explore: Does the customer require multilingual or mixed-language speech recognition, and is latency a primary constraint?; Is the customer evaluating agent orchestration (Hosted Agents, Toolboxes) versus simpler workflows, and what reliability thresholds are required?; Do they need deployment on Azure Local or prefer fully hosted options?; Which SDKs or languages are in scope for their teams, and do the updated runtimes align with their existing stacks?; Are there governance or vendor preference considerations influencing interest in Azure-hosted Claude tools?
+- Watch items: Customer demand for Foundry Local on Azure Local versus fully hosted models.; Adoption interest in Hosted Agents GA and Voice Live integration relative to simpler solutions.; Performance feedback from multilingual speech deployments using LLM 2607 phrase list customization.; Regional availability changes tied to Model Router updates and model pool access.; Compatibility issues or migration friction from SDK version and runtime changes.
 
 ## Source References
 - [CurrentOfficial] CurrentOfficial: Foundry Dev Pack setup for Microsoft Foundry development: https://devblogs.microsoft.com/foundry/foundry-devpack-announcement/
 - [CurrentOfficial] CurrentOfficial: Azure AI Speech LLM 2607 model update for speech-to-text: https://devblogs.microsoft.com/foundry/announcing-azure-ai-speech-llm-2607/
 - [CurrentOfficial] CurrentOfficial: Microsoft Foundry July/August 2026 updates: https://devblogs.microsoft.com/foundry/whats-new-in-microsoft-foundry-july-august-2026/
-- [TrendResearch] TrendResearch: Workforce reduction expectations: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Organizational AI adoption: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Convergence of top model performance (Arena Elo): https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: AI labor market impacts for young software developers: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Consumer surplus from generative AI: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: U.S. leadership in private AI investment: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Generative AI consumer adoption: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: AI labor market impact on young software developers: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Consumer surplus from generative AI: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Open vs. closed model performance gap: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Benchmark reliability concerns: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: AI company compute spending and capex escalation: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Expected AI-driven workforce reductions: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Jagged intelligence in reasoning vs. basic skills: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Expected workforce reductions from AI: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Autonomous vehicle deployment scale-up: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: U.S.–China model performance gap: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Industrial robot installations by country: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Organizational AI adoption: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Top model performance convergence: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: AI agent task performance improvement: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Global corporate AI investment growth: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Generative AI adoption speed: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Labor market impacts in AI‑exposed roles: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Benchmark saturation and human-level performance: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Robotics performance gap between simulations and real homes: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Productivity gains from AI in structured work: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Open vs. closed model performance gap: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Top model performance convergence on Arena Elo: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Generative AI consumer value: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: AI agent task completion progress: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Labor market impacts of AI: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Generative AI adoption by population: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: AI in professional domains: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Industrial robot installations in China: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Cloud infrastructure spending and AI compute costs: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: AI benchmark saturation and rapid capability gains: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Private AI investment leadership by country: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Open vs. closed model performance gap: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Open vs. closed model performance gap: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Global corporate AI investment scale: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Organizational AI adoption: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Benchmark saturation in AI capability evaluation: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Industrial robot installation share in China: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Robotics performance gap between lab and real-world: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: AI company revenue and compute spending: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Generative AI public adoption: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Industrial robot installations led by China: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: China government AI funding: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Autonomous vehicle deployment scale: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Productivity gains from AI in structured work: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: Global corporate AI investment growth: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy
-- [TrendResearch] TrendResearch: U.S.–China model performance gap: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: Video generation models and physical reasoning: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
-- [TrendResearch] TrendResearch: AI startup growth: https://www.stateof.ai/2025-report-launch
-- [TrendResearch] TrendResearch: AI practitioner usage and willingness to pay: https://www.stateof.ai/2025-report-launch
-- [TrendResearch] TrendResearch: Regulatory influences on responsible AI practices: https://hai.stanford.edu/ai-index/2026-ai-index-report/responsible-ai
-- [TrendResearch] TrendResearch: Global AI competition in reasoning and coding: https://www.stateof.ai/2025-report-launch
-- [TrendResearch] TrendResearch: AI industry revenue scale: https://www.stateof.ai/2025-report-launch
-- [TrendResearch] TrendResearch: Model capability-to-price improvements: https://www.stateof.ai/2025-report-launch
-- [TrendResearch] TrendResearch: Responsible AI incident frequency: https://hai.stanford.edu/ai-index/2026-ai-index-report/responsible-ai
 - [TrendResearch] TrendResearch: Enterprise AI adoption and spending: https://www.stateof.ai/2025-report-launch
-- [TrendResearch] TrendResearch: Hallucination rates in AI models: https://hai.stanford.edu/ai-index/2026-ai-index-report/responsible-ai
-- [TrendResearch] TrendResearch: Responsible AI governance formalization in organizations: https://hai.stanford.edu/ai-index/2026-ai-index-report/responsible-ai
+- [TrendResearch] TrendResearch: AI agent task performance improvement: https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance
+- [TrendResearch] TrendResearch: Organizational AI adoption: https://hai.stanford.edu/ai-index/2026-ai-index-report/economy

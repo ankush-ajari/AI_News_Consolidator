@@ -1,3 +1,4 @@
+using AiIntelligence.Application.Intelligence;
 using AiIntelligence.Application.Persistence;
 using AiIntelligence.Application.Reporting;
 using AiIntelligence.Domain.Enums;
@@ -338,18 +339,34 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         try
         {
             var intelligenceItems = await _intelligenceRepository.ListAsync(cancellationToken).ConfigureAwait(false);
-            var limitedItems = ApplyLimit(intelligenceItems, state.Options.CurrentIntelligenceLimit);
-            var correlations = new List<TrendCorrelation>();
+            var selectedSourceIds = state.CurrentAnalysisResult?.SelectedCandidates
+                .Select(candidate => candidate.RawSourceItemId)
+                .ToHashSet() ?? new HashSet<Guid>();
 
-            foreach (var item in limitedItems)
+            var scopedItems = selectedSourceIds.Count > 0
+                ? intelligenceItems.Where(item => selectedSourceIds.Contains(item.SourceItemId)).ToArray()
+                : Array.Empty<IntelligenceItem>();
+
+            if (scopedItems.Length == 0)
+            {
+                scopedItems = ApplyLimit(FilterMockIntelligenceItems(intelligenceItems), state.Options.CurrentIntelligenceLimit).ToArray();
+            }
+
+            var correlations = new List<TrendCorrelation>();
+            var selectedTrendEvidence = new List<TrendEvidence>();
+
+            foreach (var item in scopedItems)
             {
                 var correlationResult = await _correlationTool
                     .ExecuteAsync(new CorrelateCurrentDevelopmentInput(item, DefaultCorrelationCandidateLimit), cancellationToken)
                     .ConfigureAwait(false);
                 correlations.Add(correlationResult.Correlation);
+                selectedTrendEvidence.AddRange(correlationResult.CandidateSelection.Candidates);
             }
 
-            return state with { IntelligenceItems = limitedItems, Correlations = correlations };
+            var distinctEvidence = selectedTrendEvidence.GroupBy(trend => trend.Id).Select(group => group.First()).ToArray();
+            var canonicalEvidence = FilterCanonicalTrendEvidence(distinctEvidence);
+            return state with { IntelligenceItems = scopedItems, Correlations = correlations, SelectedTrendEvidence = canonicalEvidence };
         }
         catch (Exception exception)
         {
@@ -373,7 +390,7 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
                 ? state.IntelligenceItems
                 : ApplyLimit(await _intelligenceRepository.ListAsync(cancellationToken).ConfigureAwait(false), state.Options.CurrentIntelligenceLimit);
             var correlations = state.Correlations ?? Array.Empty<TrendCorrelation>();
-            var trendEvidence = await _trendEvidenceRepository.ListAsync(cancellationToken).ConfigureAwait(false);
+            var trendEvidence = state.SelectedTrendEvidence ?? await GetTrendEvidenceForCorrelationsAsync(correlations, cancellationToken).ConfigureAwait(false);
 
             var document = await _personaReportTool
                 .ExecuteAsync(new GeneratePersonaReportInput(intelligenceItems, correlations, trendEvidence), cancellationToken)
@@ -432,5 +449,106 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         return limit is > 0
             ? items.Take(limit.Value).ToArray()
             : items.ToArray();
+    }
+
+    private static IReadOnlyCollection<IntelligenceItem> FilterMockIntelligenceItems(
+        IReadOnlyCollection<IntelligenceItem> items)
+    {
+        return items.Where(item => !item.Summary.Contains("Mock", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(item.Topic, "AI technology development", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+    }
+
+    private static IReadOnlyCollection<TrendEvidence> FilterCanonicalTrendEvidence(
+        IReadOnlyCollection<TrendEvidence> evidence)
+    {
+        if (evidence.Count == 0)
+        {
+            return evidence;
+        }
+
+        var detector = new TrendEvidenceDuplicateDetector();
+        var output = new List<TrendEvidence>();
+
+        foreach (var sourceGroup in evidence.GroupBy(item => item.SourceItemId))
+        {
+            var candidates = sourceGroup
+                .Select(item => new
+                {
+                    Trend = item,
+                    Candidate = detector.CreateCandidate(item, Guid.Empty, item.TrendFamily)
+                })
+                .OrderByDescending(entry => ScoreCandidateSpecificity(entry.Candidate))
+                .ToList();
+
+            var accepted = new List<TrendEvidenceDuplicateDetector.NormalizedTrendEvidenceCandidate>();
+            var acceptedEvidence = new List<TrendEvidence>();
+
+            foreach (var entry in candidates)
+            {
+                if (detector.TryMergeCandidate(entry.Candidate, accepted, out _))
+                {
+                    continue;
+                }
+
+                accepted.Add(entry.Candidate);
+                acceptedEvidence.Add(entry.Trend);
+            }
+
+            output.AddRange(acceptedEvidence);
+        }
+
+        return output
+            .GroupBy(entry => entry.Id)
+            .Select(group => group.First())
+            .ToArray();
+
+        static int ScoreCandidateSpecificity(TrendEvidenceDuplicateDetector.NormalizedTrendEvidenceCandidate candidate)
+        {
+            var findingScore = candidate.RawFinding?.Length ?? 0;
+            var summaryScore = candidate.RawEvidenceSummary?.Length ?? 0;
+            var periodScore = ScorePeriodSpecificity(candidate.BestPeriod, candidate.BestPeriodProvenance);
+            return (findingScore * 3) + (summaryScore * 2) + periodScore;
+        }
+
+        static int ScorePeriodSpecificity(string period, TrendEvidencePeriodProvenance provenance)
+        {
+            if (!string.IsNullOrWhiteSpace(period)
+                && !string.Equals(period, "Unknown", StringComparison.OrdinalIgnoreCase))
+            {
+                return provenance switch
+                {
+                    TrendEvidencePeriodProvenance.SourceContent => 4,
+                    TrendEvidencePeriodProvenance.SourceMetadata => 3,
+                    TrendEvidencePeriodProvenance.PublicationDate => 2,
+                    _ => 1
+                };
+            }
+
+            return 0;
+        }
+    }
+
+    private async Task<IReadOnlyCollection<TrendEvidence>> GetTrendEvidenceForCorrelationsAsync(
+        IReadOnlyCollection<TrendCorrelation> correlations,
+        CancellationToken cancellationToken)
+    {
+        if (correlations.Count == 0)
+        {
+            return Array.Empty<TrendEvidence>();
+        }
+
+        var sourceUrls = correlations.SelectMany(correlation => correlation.SupportingSourceUrls)
+            .Where(url => url is not null)
+            .Select(url => url!.AbsoluteUri)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (sourceUrls.Count == 0)
+        {
+            return Array.Empty<TrendEvidence>();
+        }
+
+        var trendEvidence = await _trendEvidenceRepository.ListAsync(cancellationToken).ConfigureAwait(false);
+        return trendEvidence.Where(trend => sourceUrls.Contains(trend.SourceUrl.AbsoluteUri))
+            .ToArray();
     }
 }

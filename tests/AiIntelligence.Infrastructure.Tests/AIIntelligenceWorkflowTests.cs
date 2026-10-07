@@ -181,7 +181,7 @@ public sealed class AIIntelligenceWorkflowTests
 
         Assert.True(result.Success);
         await intelligenceRepository.Received(1).ListAsync(Arg.Any<CancellationToken>());
-        await trendEvidenceRepository.Received(1).ListAsync(Arg.Any<CancellationToken>());
+        await trendEvidenceRepository.ReceivedWithAnyArgs(0).ListAsync(default);
         await currentTool.DidNotReceiveWithAnyArgs().ExecuteAsync(default!, default);
         await trendTool.DidNotReceiveWithAnyArgs().ExecuteAsync(default!, default);
         Assert.Contains(result.StageResults, stage => stage.Stage == "Ingestion" && stage.Status == WorkflowStageStatus.Skipped);

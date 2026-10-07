@@ -15,6 +15,7 @@ public sealed record WorkflowContextState(
     TrendAnalysisResult? TrendAnalysisResult = null,
     IReadOnlyCollection<IntelligenceItem>? IntelligenceItems = null,
     IReadOnlyCollection<TrendCorrelation>? Correlations = null,
+    IReadOnlyCollection<TrendEvidence>? SelectedTrendEvidence = null,
     ReportDocument? ReportDocument = null,
     string? Markdown = null,
     string? ReportPath = null)
@@ -30,7 +31,8 @@ public sealed record WorkflowContextState(
             sources,
             Array.Empty<WorkflowStageError>(),
             IntelligenceItems: Array.Empty<IntelligenceItem>(),
-            Correlations: Array.Empty<TrendCorrelation>());
+            Correlations: Array.Empty<TrendCorrelation>(),
+            SelectedTrendEvidence: Array.Empty<TrendEvidence>());
     }
 
     public bool CanContinue => StageErrors.Count == 0;

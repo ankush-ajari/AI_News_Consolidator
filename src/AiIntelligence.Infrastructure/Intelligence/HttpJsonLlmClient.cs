@@ -60,9 +60,27 @@ public sealed class HttpJsonLlmClient : ILLMClient
             (int)response.StatusCode,
             stopwatch.ElapsedMilliseconds);
 
-        response.EnsureSuccessStatusCode();
+        var finalResponse = response;
+        if (response.StatusCode == HttpStatusCode.BadRequest
+            && endpoint.AbsolutePath.EndsWith("/responses", StringComparison.OrdinalIgnoreCase))
+        {
+            var errorBody = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            _logger.LogWarning(
+                "LLM /responses returned 400. Retrying with /chat/completions. Deployment: {DeploymentName}; EndpointHost: {EndpointHost}; Response: {Response}",
+                options.DeploymentName,
+                endpointHost,
+                errorBody);
 
-        var responseJson = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            var fallbackEndpoint = BuildChatCompletionsEndpoint(endpoint);
+            using var fallbackRequest = new HttpRequestMessage(HttpMethod.Post, fallbackEndpoint);
+            ApplyAuthentication(fallbackRequest, options.ApiKey);
+            fallbackRequest.Content = JsonContent.Create(CreateChatCompletionsPayload(options.DeploymentName, request), options: JsonOptions);
+            finalResponse = await client.SendAsync(fallbackRequest, cancellationToken).ConfigureAwait(false);
+        }
+
+        finalResponse.EnsureSuccessStatusCode();
+
+        var responseJson = await finalResponse.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
         using var document = JsonDocument.Parse(responseJson);
         LogTokenUsageIfPresent(document.RootElement, options.DeploymentName, endpointHost);
         var content = ExtractMessageContent(document.RootElement);
@@ -110,6 +128,20 @@ public sealed class HttpJsonLlmClient : ILLMClient
 
         var baseUri = configuredEndpoint.EndsWith('/') ? configuredEndpoint : configuredEndpoint + "/";
         return new Uri(new Uri(baseUri), "chat/completions");
+    }
+
+    private static Uri BuildChatCompletionsEndpoint(Uri endpoint)
+    {
+        if (endpoint.AbsolutePath.EndsWith("/chat/completions", StringComparison.OrdinalIgnoreCase))
+        {
+            return endpoint;
+        }
+
+        var baseUri = endpoint.AbsolutePath.EndsWith("/responses", StringComparison.OrdinalIgnoreCase)
+            ? endpoint.AbsoluteUri[..^"responses".Length]
+            : endpoint.AbsoluteUri;
+        var normalizedBase = baseUri.EndsWith('/') ? baseUri : baseUri + "/";
+        return new Uri(new Uri(normalizedBase), "chat/completions");
     }
 
     private static void ApplyAuthentication(HttpRequestMessage httpRequest, string apiKey)

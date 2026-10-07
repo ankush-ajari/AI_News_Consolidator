@@ -3,6 +3,7 @@ using AiIntelligence.Application.Persistence;
 using AiIntelligence.Application.Reporting;
 using AiIntelligence.Domain.Enums;
 using AiIntelligence.Domain.Models;
+using AiIntelligence.Domain.ValueObjects;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
@@ -10,6 +11,18 @@ namespace AiIntelligence.Application.Tests;
 
 public sealed class ReportingTests
 {
+        private const string PersonaResponseJson = """
+        {
+            "relevantDevelopment": "Persona JSON parsed.",
+            "specificImpact": "Specific impact.",
+            "trendImplication": "Trend context.",
+            "recommendedActions": ["Action one"],
+            "questionsToExplore": ["Question one"],
+            "watchItems": ["Watch one"],
+            "relevance": "Relevant."
+        }
+        """;
+
     [Fact]
     public async Task CandidateSelector_SelectsRelatedEvidence_ExcludesUnrelated_AndRespectsMax()
     {
@@ -151,7 +164,7 @@ public sealed class ReportingTests
         }
         """));
 
-        var generator = new LlmPersonaReportGenerator(llm, NullLogger<LlmPersonaReportGenerator>.Instance);
+        var generator = new LlmPersonaReportGenerator(llm, Substitute.For<IRawSourceRepository>(), NullLogger<LlmPersonaReportGenerator>.Instance);
         var intelligence = new[] { Intelligence(summary: "New SDK framework for agents released.") };
         var trends = new[] { Trend("Agent adoption", "Workforce adoption trend.") };
         var correlations = new[] { new TrendCorrelation(intelligence[0].Id, "SDK", "Adoption", CorrelationRelationship.Supports, "Explanation", "Evidence basis", 0.7m, new[] { intelligence[0].SourceUrl, trends[0].SourceUrl }, false) };
@@ -184,7 +197,7 @@ public sealed class ReportingTests
         }
         """));
 
-        var generator = new LlmPersonaReportGenerator(llm, NullLogger<LlmPersonaReportGenerator>.Instance);
+        var generator = new LlmPersonaReportGenerator(llm, Substitute.For<IRawSourceRepository>(), NullLogger<LlmPersonaReportGenerator>.Instance);
         var intelligence = new[] { Intelligence(summary: "Minor admin operations update.") };
         var trends = Array.Empty<TrendEvidence>();
         var correlations = Array.Empty<TrendCorrelation>();
@@ -196,6 +209,53 @@ public sealed class ReportingTests
         Assert.Empty(sales.RecommendedActions);
         Assert.Empty(sales.QuestionsToExplore);
         Assert.Empty(sales.WatchItems);
+    }
+
+    [Fact]
+    public async Task PersonaGeneration_ParsesValidJson_AndRequestsStrictSchema()
+    {
+        var (document, llm) = await GeneratePersonaDocumentAsync(PersonaResponseJson);
+
+        Assert.Equal(5, document.PersonaSections.Count);
+        Assert.All(document.PersonaSections, section => Assert.DoesNotContain("FALLBACK:", section.RelevanceDetail));
+        Assert.Equal("Persona JSON parsed.", document.PersonaSections.Single(section => section.PersonaType == PersonaType.Developer).RelevantDevelopment);
+        await llm.Received(5).CompleteAsync(
+            Arg.Is<LLMRequest>(request =>
+                request.JsonSchemaName == LlmPersonaReportGenerator.PersonaSectionJsonSchemaName
+                && request.JsonSchema != null
+                && request.JsonSchema.Contains("additionalProperties", StringComparison.Ordinal)),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task PersonaGeneration_ParsesFencedJson_WithSurroundingExplanation()
+    {
+        var response = $"Persona result follows:\n```json\n{PersonaResponseJson}\n```\nEnd of result.";
+
+        var (document, _) = await GeneratePersonaDocumentAsync(response);
+
+        Assert.All(document.PersonaSections, section => Assert.DoesNotContain("FALLBACK:", section.RelevanceDetail));
+        Assert.Equal("Persona JSON parsed.", document.PersonaSections.Single(section => section.PersonaType == PersonaType.Developer).RelevantDevelopment);
+    }
+
+    [Fact]
+    public async Task PersonaGeneration_ParsesJson_WithSurroundingWhitespace()
+    {
+        var response = $" \r\n\t{PersonaResponseJson}\n \t";
+
+        var (document, _) = await GeneratePersonaDocumentAsync(response);
+
+        Assert.All(document.PersonaSections, section => Assert.DoesNotContain("FALLBACK:", section.RelevanceDetail));
+        Assert.Equal("Persona JSON parsed.", document.PersonaSections.Single(section => section.PersonaType == PersonaType.Developer).RelevantDevelopment);
+    }
+
+    [Fact]
+    public async Task PersonaGeneration_MalformedJson_UsesExplicitlyMarkedFallback()
+    {
+        var (document, _) = await GeneratePersonaDocumentAsync("{ malformed json }");
+
+        Assert.Equal(5, document.PersonaSections.Count);
+        Assert.All(document.PersonaSections, section => Assert.StartsWith("FALLBACK:", section.RelevanceDetail));
     }
 
     [Fact]
@@ -215,6 +275,187 @@ public sealed class ReportingTests
 
         var emptyTrendDocument = await new MockPersonaReportGenerator().GenerateAsync(intelligence, Array.Empty<TrendCorrelation>(), Array.Empty<TrendEvidence>(), CancellationToken.None);
         Assert.NotNull(emptyTrendDocument);
+    }
+
+    [Fact]
+    public async Task ReportingPeriod_UsesIntelligenceItemPublishedYears()
+    {
+        var llm = Substitute.For<ILLMClient>();
+        llm.CompleteAsync(Arg.Any<LLMRequest>(), Arg.Any<CancellationToken>()).Returns(new LLMResponse("""
+        {
+          "relevantDevelopment": "Update.",
+          "specificImpact": "Impact.",
+          "trendImplication": "Trend.",
+          "recommendedActions": [],
+          "questionsToExplore": [],
+          "watchItems": [],
+          "relevance": "Mock"
+        }
+        """));
+        var rawRepo = Substitute.For<IRawSourceRepository>();
+        rawRepo.ListAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<RawSourceItem>());
+
+        var generator = new LlmPersonaReportGenerator(llm, rawRepo, NullLogger<LlmPersonaReportGenerator>.Instance);
+        var intelligence = new[]
+        {
+            Intelligence(summary: "Item one.", publishedAt: new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero)),
+            Intelligence(summary: "Item two.", publishedAt: new DateTimeOffset(2025, 6, 3, 0, 0, 0, TimeSpan.Zero))
+        };
+        var correlations = new[] { new TrendCorrelation(intelligence[0].Id, "Current", "Trend", CorrelationRelationship.Supports, "Explanation", "Evidence basis", 0.7m, new[] { intelligence[0].SourceUrl }, false) };
+
+        var document = await generator.GenerateAsync(intelligence, correlations, Array.Empty<TrendEvidence>(), CancellationToken.None);
+
+        Assert.Equal("2025-2026", document.ReportingPeriod);
+    }
+
+    [Fact]
+    public async Task ReportingPeriod_IgnoresMissingPublishedDates_WhenAtLeastOneExists()
+    {
+        var llm = Substitute.For<ILLMClient>();
+        llm.CompleteAsync(Arg.Any<LLMRequest>(), Arg.Any<CancellationToken>()).Returns(new LLMResponse("""
+        {
+          "relevantDevelopment": "Update.",
+          "specificImpact": "Impact.",
+          "trendImplication": "Trend.",
+          "recommendedActions": [],
+          "questionsToExplore": [],
+          "watchItems": [],
+          "relevance": "Mock"
+        }
+        """));
+        var rawRepo = Substitute.For<IRawSourceRepository>();
+        rawRepo.ListAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<RawSourceItem>());
+
+        var generator = new LlmPersonaReportGenerator(llm, rawRepo, NullLogger<LlmPersonaReportGenerator>.Instance);
+        var intelligence = new[]
+        {
+            Intelligence(summary: "Item one.", publishedAt: null, useDefaultPublishedAt: false),
+            Intelligence(summary: "Item two.", publishedAt: new DateTimeOffset(2026, 8, 1, 0, 0, 0, TimeSpan.Zero))
+        };
+        var correlations = new[] { new TrendCorrelation(intelligence[0].Id, "Current", "Trend", CorrelationRelationship.Supports, "Explanation", "Evidence basis", 0.7m, new[] { intelligence[0].SourceUrl }, false) };
+
+        var document = await generator.GenerateAsync(intelligence, correlations, Array.Empty<TrendEvidence>(), CancellationToken.None);
+
+        Assert.Equal("2026", document.ReportingPeriod);
+    }
+
+    [Fact]
+    public async Task ReportingPeriod_FallsBackToRawSourcePublishedAt_WhenMissingOnIntelligenceItems()
+    {
+        var llm = Substitute.For<ILLMClient>();
+        llm.CompleteAsync(Arg.Any<LLMRequest>(), Arg.Any<CancellationToken>()).Returns(new LLMResponse("""
+        {
+          "relevantDevelopment": "Update.",
+          "specificImpact": "Impact.",
+          "trendImplication": "Trend.",
+          "recommendedActions": [],
+          "questionsToExplore": [],
+          "watchItems": [],
+          "relevance": "Mock"
+        }
+        """));
+        var rawRepo = Substitute.For<IRawSourceRepository>();
+        var sourceId = Guid.NewGuid();
+        var canonicalUrl = "https://example.com/raw";
+        rawRepo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        {
+            new RawSourceItem(
+                sourceId,
+                Guid.NewGuid(),
+                "Raw",
+                new Uri(canonicalUrl),
+                new DateTimeOffset(2026, 3, 4, 0, 0, 0, TimeSpan.Zero),
+                DateTimeOffset.UtcNow,
+                "content",
+                new ContentHash(Guid.NewGuid().ToString("N")))
+        });
+
+        var generator = new LlmPersonaReportGenerator(llm, rawRepo, NullLogger<LlmPersonaReportGenerator>.Instance);
+        var intelligence = new[] { Intelligence(summary: "Item one.", publishedAt: null, sourceItemId: sourceId, useDefaultPublishedAt: false, sourceUrl: new Uri(canonicalUrl)) };
+        var correlations = new[] { new TrendCorrelation(intelligence[0].Id, "Current", "Trend", CorrelationRelationship.Supports, "Explanation", "Evidence basis", 0.7m, new[] { intelligence[0].SourceUrl }, false) };
+
+        var document = await generator.GenerateAsync(intelligence, correlations, Array.Empty<TrendEvidence>(), CancellationToken.None);
+
+        Assert.Equal("2026", document.ReportingPeriod);
+    }
+
+    [Fact]
+    public async Task ReportingPeriod_FallsBackToRawSourceFetchedAt_WhenPublishedDatesUnavailable()
+    {
+        var llm = Substitute.For<ILLMClient>();
+        llm.CompleteAsync(Arg.Any<LLMRequest>(), Arg.Any<CancellationToken>()).Returns(new LLMResponse("""
+        {
+          "relevantDevelopment": "Update.",
+          "specificImpact": "Impact.",
+          "trendImplication": "Trend.",
+          "recommendedActions": [],
+          "questionsToExplore": [],
+          "watchItems": [],
+          "relevance": "Mock"
+        }
+        """));
+        var rawRepo = Substitute.For<IRawSourceRepository>();
+        var sourceId = Guid.NewGuid();
+        var canonicalUrl = "https://example.com/raw";
+        rawRepo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        {
+            new RawSourceItem(
+                sourceId,
+                Guid.NewGuid(),
+                "Raw",
+                new Uri(canonicalUrl),
+                null,
+                new DateTimeOffset(2026, 9, 25, 0, 0, 0, TimeSpan.Zero),
+                "content",
+                new ContentHash(Guid.NewGuid().ToString("N")))
+        });
+
+        var generator = new LlmPersonaReportGenerator(llm, rawRepo, NullLogger<LlmPersonaReportGenerator>.Instance);
+        var intelligence = new[] { Intelligence(summary: "Item one.", publishedAt: null, sourceItemId: sourceId, useDefaultPublishedAt: false, sourceUrl: new Uri(canonicalUrl)) };
+        var correlations = new[] { new TrendCorrelation(intelligence[0].Id, "Current", "Trend", CorrelationRelationship.Supports, "Explanation", "Evidence basis", 0.7m, new[] { intelligence[0].SourceUrl }, false) };
+
+        var document = await generator.GenerateAsync(intelligence, correlations, Array.Empty<TrendEvidence>(), CancellationToken.None);
+
+        Assert.Equal("2026", document.ReportingPeriod);
+    }
+
+    [Fact]
+    public async Task ReportingPeriod_ReturnsUnknown_WhenNoCurrentOfficialDatesAvailable()
+    {
+        var llm = Substitute.For<ILLMClient>();
+        llm.CompleteAsync(Arg.Any<LLMRequest>(), Arg.Any<CancellationToken>()).Returns(new LLMResponse("""
+        {
+          "relevantDevelopment": "Update.",
+          "specificImpact": "Impact.",
+          "trendImplication": "Trend.",
+          "recommendedActions": [],
+          "questionsToExplore": [],
+          "watchItems": [],
+          "relevance": "Mock"
+        }
+        """));
+        var rawRepo = Substitute.For<IRawSourceRepository>();
+        rawRepo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        {
+            new RawSourceItem(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "Trend",
+                new Uri("https://example.com/trend"),
+                new DateTimeOffset(2026, 3, 4, 0, 0, 0, TimeSpan.Zero),
+                DateTimeOffset.UtcNow,
+                "content",
+                new ContentHash(Guid.NewGuid().ToString("N")),
+                sourceClass: SourceClass.TrendResearch)
+        });
+
+        var generator = new LlmPersonaReportGenerator(llm, rawRepo, NullLogger<LlmPersonaReportGenerator>.Instance);
+        var intelligence = new[] { Intelligence(summary: "Item one.", publishedAt: null, useDefaultPublishedAt: false) };
+        var correlations = new[] { new TrendCorrelation(intelligence[0].Id, "Current", "Trend", CorrelationRelationship.Supports, "Explanation", "Evidence basis", 0.7m, new[] { intelligence[0].SourceUrl }, false) };
+
+        var document = await generator.GenerateAsync(intelligence, correlations, Array.Empty<TrendEvidence>(), CancellationToken.None);
+
+        Assert.Equal("Unknown", document.ReportingPeriod);
     }
 
     [Fact]
@@ -299,7 +540,7 @@ public sealed class ReportingTests
         }
         """));
 
-        var generator = new LlmPersonaReportGenerator(llm, NullLogger<LlmPersonaReportGenerator>.Instance);
+        var generator = new LlmPersonaReportGenerator(llm, Substitute.For<IRawSourceRepository>(), NullLogger<LlmPersonaReportGenerator>.Instance);
         var intelligence = new[] { Intelligence(topic: "Developer platform", category: "Programming Language", product: "TypeScript SDK", summary: "Developer platform updates programming language tooling for AI-assisted development, developer experience, and coding tools.") };
         var trends = new[] { Trend("Developer productivity", "Developer platform adoption grows with AI tooling.") };
         var correlations = new[] { new TrendCorrelation(intelligence[0].Id, "Developer platform", "Adoption", CorrelationRelationship.Supports, "AI-assisted development improves productivity.", "Evidence basis", 0.7m, new[] { intelligence[0].SourceUrl, trends[0].SourceUrl }, false) };
@@ -505,9 +746,13 @@ public sealed class ReportingTests
         string category = "AI Agent",
         string product = "Agent SDK",
         string summary = "An agent evaluation capability changed.",
-        IReadOnlyCollection<AIConceptTag>? conceptTags = null) => new(
+        IReadOnlyCollection<AIConceptTag>? conceptTags = null,
+        DateTimeOffset? publishedAt = null,
+        Guid? sourceItemId = null,
+        bool useDefaultPublishedAt = true,
+        Uri? sourceUrl = null) => new(
         Guid.NewGuid(),
-        Guid.NewGuid(),
+        sourceItemId ?? Guid.NewGuid(),
         "Microsoft",
         topic,
         category,
@@ -517,8 +762,8 @@ public sealed class ReportingTests
         new[] { "Unknown" },
         "Preview",
         SourceClass.CurrentOfficial,
-        DateTimeOffset.UtcNow,
-        new Uri("https://current.example.com"),
+        useDefaultPublishedAt ? publishedAt ?? DateTimeOffset.UtcNow : publishedAt,
+        sourceUrl ?? new Uri("https://current.example.com"),
         conceptTags ?? new[] { AIConceptTag.Evaluation });
 
     private static TrendEvidence Trend(
@@ -547,5 +792,24 @@ public sealed class ReportingTests
             conceptTags);
         evidence.UpdateTrendFamily(trendFamily);
         return evidence;
+    }
+
+    private static async Task<(ReportDocument Document, ILLMClient Llm)> GeneratePersonaDocumentAsync(string response)
+    {
+        var llm = Substitute.For<ILLMClient>();
+        llm.CompleteAsync(Arg.Any<LLMRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new LLMResponse(response));
+        var generator = new LlmPersonaReportGenerator(
+            llm,
+            Substitute.For<IRawSourceRepository>(),
+            NullLogger<LlmPersonaReportGenerator>.Instance);
+        var intelligence = new[] { Intelligence(summary: "A new SDK for agent development was announced.") };
+
+        var document = await generator.GenerateAsync(
+            intelligence,
+            Array.Empty<TrendCorrelation>(),
+            Array.Empty<TrendEvidence>(),
+            CancellationToken.None);
+        return (document, llm);
     }
 }
