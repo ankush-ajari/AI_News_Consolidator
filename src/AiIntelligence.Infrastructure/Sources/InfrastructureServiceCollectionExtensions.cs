@@ -63,6 +63,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ITrendCorrelationService, LlmTrendCorrelationService>();
         services.AddScoped<IPersonaReportGenerator, LlmPersonaReportGenerator>();
         services.AddScoped<MarkdownReportRenderer>();
+        services.AddScoped<IReportDocumentGenerator, OpenXmlReportDocumentGenerator>();
         services.AddScoped<ReportOrchestrationService>();
 
         services.AddScoped<IIngestSourcesTool, IngestSourcesTool>();

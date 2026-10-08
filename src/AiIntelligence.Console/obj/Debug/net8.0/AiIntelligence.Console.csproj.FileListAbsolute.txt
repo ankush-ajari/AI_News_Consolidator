@@ -171,3 +171,6 @@ E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Console\bin\Debug\net8
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Console\bin\Debug\net8.0\System.Numerics.Tensors.dll
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Console\bin\Debug\net8.0\System.Threading.Channels.dll
 E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Console\obj\Debug\net8.0\AiIntelligence.Console.sourcelink.json
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Console\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Console\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
+E:\Ankush\Samples\AI_News_Consolidator\src\AiIntelligence.Console\bin\Debug\net8.0\System.IO.Packaging.dll

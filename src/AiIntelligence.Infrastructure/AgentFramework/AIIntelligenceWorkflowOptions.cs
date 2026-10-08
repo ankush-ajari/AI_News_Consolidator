@@ -17,4 +17,10 @@ public sealed class AIIntelligenceWorkflowOptions
     public bool RunTrendAnalysis { get; init; } = true;
 
     public bool RunReportGeneration { get; init; } = true;
+
+    // When true, the workflow will capture and include lightweight memory diagnostics
+    // (ManagedHeapMB, WorkingSetMB, PrivateMemoryMB) in the stage metrics returned
+    // from the workflow result. This flag is set from the Console CLI via
+    // --memory-diagnostics.
+    public bool MemoryDiagnostics { get; init; } = false;
 }

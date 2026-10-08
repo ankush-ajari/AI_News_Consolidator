@@ -1,6 +1,7 @@
 ﻿using AiIntelligence.Application.Intelligence;
 using AiIntelligence.Application.Reporting;
 using AiIntelligence.Application.Sources;
+using AiIntelligence.Domain.Models;
 using AiIntelligence.Console;
 using AiIntelligence.Domain.Enums;
 using AiIntelligence.Infrastructure.AgentFramework;
@@ -44,7 +45,7 @@ var resolvedOptions = host.Services.GetRequiredService<IOptions<LlmClientOptions
 
 if (args.Length == 0 || !ConsoleCommandParser.IsSupportedCommand(args[0]))
 {
-    Console.WriteLine("Usage: dotnet run --project src/AiIntelligence.Console -- <fetch|ingest|analyze|analyze-trends|inspect|reset|report|test-llm|run-workflow|backfill-concepts|backfill-trend-families> [sources|raw|trends|stats|analysis|intelligence] [options]");
+    Console.WriteLine("Usage: dotnet run --project src/AiIntelligence.Console -- <fetch|ingest|analyze|analyze-trends|inspect|reset|report|generate-docx|test-llm|run-workflow|backfill-concepts|backfill-trend-families> [sources|raw|trends|stats|analysis|intelligence] [options]");
     return;
 }
 
@@ -83,7 +84,8 @@ if (string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase))
         TrendAnalysisLimit = ConsoleCommandParser.GetIntOption(args, "--trend-limit"),
         Verbose = verbose,
         MockLlm = ConsoleCommandParser.HasFlag(args, "--mock-llm"),
-        RunIngestion = !ConsoleCommandParser.HasFlag(args, "--skip-ingest")
+        RunIngestion = !ConsoleCommandParser.HasFlag(args, "--skip-ingest"),
+        MemoryDiagnostics = ConsoleCommandParser.HasFlag(args, "--memory-diagnostics")
     };
 
     var result = await workflow.RunReportAsync(options, CancellationToken.None).ConfigureAwait(false);
@@ -149,6 +151,11 @@ if (string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase))
         {
             Console.WriteLine($"Report path: {result.ReportPath}");
         }
+
+        if (!string.IsNullOrWhiteSpace(result.DocxReportPath))
+        {
+            Console.WriteLine($"DOCX report path: {result.DocxReportPath}");
+        }
     }
 
     if (result.StageErrors.Count > 0)
@@ -164,35 +171,49 @@ if (string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase))
     return;
 }
 
-var sourceDefinitions = SourceDefinitionConfigurationLoader.Load(builder.Configuration);
+// Load source definitions only for commands that require source ingestion or discovery.
+var sourceDefinitions = Array.Empty<SourceDefinition>();
 var sourceFilter = ConsoleCommandParser.GetStringOption(args, "--source");
-if (!string.IsNullOrWhiteSpace(sourceFilter)
-    && (string.Equals(command, "fetch", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(command, "ingest", StringComparison.OrdinalIgnoreCase)))
-{
-    sourceDefinitions = sourceDefinitions
-        .Where(source => source.Name.Equals(sourceFilter, StringComparison.OrdinalIgnoreCase))
-        .ToArray();
-}
-foreach (var source in sourceDefinitions)
-{
-    logger.LogInformation(
-        "Configured source loaded. Name: {SourceName}; SourceClass: {SourceClass}; SourceType: {SourceType}; IsEnabled: {IsEnabled}",
-        source.Name,
-        source.SourceClass,
-        source.SourceType,
-        source.IsEnabled);
-}
+var needSources = string.Equals(command, "fetch", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(command, "ingest", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(command, "analyze-trends", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(command, "backfill-concepts", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(command, "backfill-trend-families", StringComparison.OrdinalIgnoreCase);
 
-if (!string.Equals(command, "inspect", StringComparison.OrdinalIgnoreCase))
+if (needSources)
 {
-    if (sourceDefinitions.Count == 0)
+    sourceDefinitions = SourceDefinitionConfigurationLoader.Load(builder.Configuration).ToArray();
+
+    if (!string.IsNullOrWhiteSpace(sourceFilter)
+        && (string.Equals(command, "fetch", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(command, "ingest", StringComparison.OrdinalIgnoreCase)))
     {
-        Console.WriteLine("No sources are configured. Check appsettings.Development.json or Sources__Definitions environment variables.");
-        return;
+        sourceDefinitions = sourceDefinitions
+            .Where(source => source.Name.Equals(sourceFilter, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
     }
 
-    Console.WriteLine($"Configured sources: {sourceDefinitions.Count}");
+    foreach (var source in sourceDefinitions)
+    {
+        logger.LogInformation(
+            "Configured source loaded. Name: {SourceName}; SourceClass: {SourceClass}; SourceType: {SourceType}; IsEnabled: {IsEnabled}",
+            source.Name,
+            source.SourceClass,
+            source.SourceType,
+            source.IsEnabled);
+    }
+
+    if (!string.Equals(command, "inspect", StringComparison.OrdinalIgnoreCase))
+    {
+        if (sourceDefinitions.Length == 0)
+        {
+            Console.WriteLine("No sources are configured. Check appsettings.Development.json or Sources__Definitions environment variables.");
+            return;
+        }
+
+        Console.WriteLine($"Configured sources: {sourceDefinitions.Length}");
+    }
 }
 
 try
@@ -430,6 +451,32 @@ try
         Console.WriteLine($"Persona sections created: {reportResult.PersonaSectionsCreated}");
         Console.WriteLine($"Output file path: {outputFile}");
         Console.WriteLine($"LLM call count if available: {reportResult.LlmCallCount}");
+        return;
+    }
+
+    if (string.Equals(command, "generate-docx", StringComparison.OrdinalIgnoreCase))
+    {
+        var inputPath = ConsoleCommandParser.GetStringOption(args, "--input");
+        if (string.IsNullOrWhiteSpace(inputPath))
+        {
+            inputPath = Path.Combine(Environment.CurrentDirectory, "output", "ai-intelligence-report.md");
+        }
+
+        var outputPath = ConsoleCommandParser.GetStringOption(args, "--output");
+        if (string.IsNullOrWhiteSpace(outputPath))
+        {
+            var inputDirectory = Path.GetDirectoryName(inputPath);
+            var outputDirectory = string.IsNullOrWhiteSpace(inputDirectory)
+                ? Environment.CurrentDirectory
+                : inputDirectory;
+            outputPath = Path.Combine(outputDirectory, "ai-intelligence-report.docx");
+        }
+
+        var reportGenerator = scope.ServiceProvider.GetRequiredService<IReportDocumentGenerator>();
+        await reportGenerator.GenerateDocxAsync(inputPath, outputPath, CancellationToken.None).ConfigureAwait(false);
+        Console.WriteLine("DOCX report generated successfully.");
+        Console.WriteLine($"Input: {inputPath}");
+        Console.WriteLine($"Output: {outputPath}");
         return;
     }
 

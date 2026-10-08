@@ -196,3 +196,6 @@ e:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Infrastructure.Tests
 e:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Infrastructure.Tests\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.dll
 e:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Infrastructure.Tests\bin\Debug\net8.0\AiIntelligence.Console.dll
 e:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Infrastructure.Tests\bin\Debug\net8.0\AiIntelligence.Console.pdb
+E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Infrastructure.Tests\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Infrastructure.Tests\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
+E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Infrastructure.Tests\bin\Debug\net8.0\System.IO.Packaging.dll

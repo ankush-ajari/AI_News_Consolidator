@@ -60,27 +60,21 @@ public sealed class HttpJsonLlmClient : ILLMClient
             (int)response.StatusCode,
             stopwatch.ElapsedMilliseconds);
 
-        var finalResponse = response;
         if (response.StatusCode == HttpStatusCode.BadRequest
             && endpoint.AbsolutePath.EndsWith("/responses", StringComparison.OrdinalIgnoreCase))
         {
             var errorBody = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            _logger.LogWarning(
-                "LLM /responses returned 400. Retrying with /chat/completions. Deployment: {DeploymentName}; EndpointHost: {EndpointHost}; Response: {Response}",
+            _logger.LogError(
+                "LLM /responses returned 400. Deployment: {DeploymentName}; EndpointHost: {EndpointHost}; Response: {Response}",
                 options.DeploymentName,
                 endpointHost,
                 errorBody);
-
-            var fallbackEndpoint = BuildChatCompletionsEndpoint(endpoint);
-            using var fallbackRequest = new HttpRequestMessage(HttpMethod.Post, fallbackEndpoint);
-            ApplyAuthentication(fallbackRequest, options.ApiKey);
-            fallbackRequest.Content = JsonContent.Create(CreateChatCompletionsPayload(options.DeploymentName, request), options: JsonOptions);
-            finalResponse = await client.SendAsync(fallbackRequest, cancellationToken).ConfigureAwait(false);
+            throw new InvalidOperationException("LLM /responses returned 400. The requested operation is unsupported.");
         }
 
-        finalResponse.EnsureSuccessStatusCode();
+        response.EnsureSuccessStatusCode();
 
-        var responseJson = await finalResponse.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        var responseJson = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
         using var document = JsonDocument.Parse(responseJson);
         LogTokenUsageIfPresent(document.RootElement, options.DeploymentName, endpointHost);
         var content = ExtractMessageContent(document.RootElement);

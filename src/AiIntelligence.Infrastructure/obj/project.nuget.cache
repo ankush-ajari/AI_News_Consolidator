@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "2hYIoMuqwf4dd0I/lZ1LA59MXCZg13Vz2pEC6oglCTnypurX3fdUxiU7h1/IZmM/N9Y1rj4sPaovL1UcqSOhww==",
+  "dgSpecHash": "LQ63amTIwkFx7Xs/4gNHbrxJODw5uT0I4CF95OnSddxY4A7S5cxkvIogIGR6XEDwVHkuAY8XLMm9tgYhc0enug==",
   "success": true,
   "projectFilePath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Infrastructure\\AiIntelligence.Infrastructure.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\ajari_a\\.nuget\\packages\\documentformat.openxml\\3.2.0\\documentformat.openxml.3.2.0.nupkg.sha512",
+    "C:\\Users\\ajari_a\\.nuget\\packages\\documentformat.openxml.framework\\3.2.0\\documentformat.openxml.framework.3.2.0.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\google.protobuf\\3.30.2\\google.protobuf.3.30.2.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\microsoft.agents.ai\\1.0.0\\microsoft.agents.ai.1.0.0.nupkg.sha512",
@@ -60,6 +62,7 @@
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.composition.runtime\\6.0.0\\system.composition.runtime.6.0.0.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.composition.typedparts\\6.0.0\\system.composition.typedparts.6.0.0.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.diagnostics.diagnosticsource\\10.0.12\\system.diagnostics.diagnosticsource.10.0.12.nupkg.sha512",
+    "C:\\Users\\ajari_a\\.nuget\\packages\\system.io.packaging\\8.0.1\\system.io.packaging.8.0.1.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.io.pipelines\\10.0.4\\system.io.pipelines.10.0.4.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.numerics.tensors\\10.0.4\\system.numerics.tensors.10.0.4.nupkg.sha512",

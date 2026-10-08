@@ -18,8 +18,11 @@ public sealed record WorkflowContextState(
     IReadOnlyCollection<TrendEvidence>? SelectedTrendEvidence = null,
     ReportDocument? ReportDocument = null,
     string? Markdown = null,
-    string? ReportPath = null)
+    string? ReportPath = null,
+    string? DocxReportPath = null)
 {
+    // Memory diagnostics removed from persisted workflow state to avoid
+    // retaining large payloads in the workflow engine's historical state.
     public static WorkflowContextState Create(
         DateTimeOffset startedAt,
         AIIntelligenceWorkflowOptions options,
@@ -34,6 +37,10 @@ public sealed record WorkflowContextState(
             Correlations: Array.Empty<TrendCorrelation>(),
             SelectedTrendEvidence: Array.Empty<TrendEvidence>());
     }
+
+    // AddStageMemoryMetrics intentionally removed. Memory diagnostics are now
+    // emitted via logging only to avoid embedding diagnostic samples in the
+    // immutable workflow state which is retained by the execution engine.
 
     public bool CanContinue => StageErrors.Count == 0;
 

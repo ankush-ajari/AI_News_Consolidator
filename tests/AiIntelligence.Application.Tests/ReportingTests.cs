@@ -27,12 +27,10 @@ public sealed class ReportingTests
     public async Task CandidateSelector_SelectsRelatedEvidence_ExcludesUnrelated_AndRespectsMax()
     {
         var repo = Substitute.For<ITrendEvidenceRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
-        {
+        SetCandidateTrends(repo,
             Trend("Agent evaluation", "Agent benchmark performance improved."),
             Trend("Model inference", "Inference cost reduction continued."),
-            Trend("Space systems", "Satellite launch cadence increased.")
-        });
+            Trend("Space systems", "Satellite launch cadence increased."));
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
         var item = Intelligence(topic: "Agent evaluation", category: "AI Agent", product: "Agent SDK");
 
@@ -47,7 +45,7 @@ public sealed class ReportingTests
     public async Task CandidateSelector_ReturnsEmpty_WhenNoRelatedEvidence()
     {
         var repo = Substitute.For<ITrendEvidenceRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[] { Trend("Space systems", "Satellite launch cadence increased.") });
+        SetCandidateTrends(repo, Trend("Space systems", "Satellite launch cadence increased."));
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
         var selection = await selector.SelectCandidatesAsync(Intelligence("AI regulation", "Governance", "Policy"), 5, CancellationToken.None);
@@ -293,7 +291,7 @@ public sealed class ReportingTests
         }
         """));
         var rawRepo = Substitute.For<IRawSourceRepository>();
-        rawRepo.ListAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<RawSourceItem>());
+        rawRepo.GetByIdsAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<CancellationToken>()).Returns(Array.Empty<RawSourceItemSummary>());
 
         var generator = new LlmPersonaReportGenerator(llm, rawRepo, NullLogger<LlmPersonaReportGenerator>.Instance);
         var intelligence = new[]
@@ -324,7 +322,7 @@ public sealed class ReportingTests
         }
         """));
         var rawRepo = Substitute.For<IRawSourceRepository>();
-        rawRepo.ListAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<RawSourceItem>());
+        rawRepo.GetByIdsAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<CancellationToken>()).Returns(Array.Empty<RawSourceItemSummary>());
 
         var generator = new LlmPersonaReportGenerator(llm, rawRepo, NullLogger<LlmPersonaReportGenerator>.Instance);
         var intelligence = new[]
@@ -357,17 +355,9 @@ public sealed class ReportingTests
         var rawRepo = Substitute.For<IRawSourceRepository>();
         var sourceId = Guid.NewGuid();
         var canonicalUrl = "https://example.com/raw";
-        rawRepo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        rawRepo.GetByIdsAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<CancellationToken>()).Returns(new[]
         {
-            new RawSourceItem(
-                sourceId,
-                Guid.NewGuid(),
-                "Raw",
-                new Uri(canonicalUrl),
-                new DateTimeOffset(2026, 3, 4, 0, 0, 0, TimeSpan.Zero),
-                DateTimeOffset.UtcNow,
-                "content",
-                new ContentHash(Guid.NewGuid().ToString("N")))
+            new RawSourceItemSummary(sourceId, new DateTimeOffset(2026, 3, 4, 0, 0, 0, TimeSpan.Zero), DateTimeOffset.UtcNow, canonicalUrl, Guid.NewGuid(), SourceClass.CurrentOfficial)
         });
 
         var generator = new LlmPersonaReportGenerator(llm, rawRepo, NullLogger<LlmPersonaReportGenerator>.Instance);
@@ -377,6 +367,10 @@ public sealed class ReportingTests
         var document = await generator.GenerateAsync(intelligence, correlations, Array.Empty<TrendEvidence>(), CancellationToken.None);
 
         Assert.Equal("2026", document.ReportingPeriod);
+        await rawRepo.Received(1).GetByIdsAsync(
+            Arg.Is<IReadOnlyCollection<Guid>>(ids => ids.Count == 1 && ids.Contains(sourceId)),
+            Arg.Any<CancellationToken>());
+        await rawRepo.DidNotReceive().ListAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -397,17 +391,9 @@ public sealed class ReportingTests
         var rawRepo = Substitute.For<IRawSourceRepository>();
         var sourceId = Guid.NewGuid();
         var canonicalUrl = "https://example.com/raw";
-        rawRepo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        rawRepo.GetByIdsAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<CancellationToken>()).Returns(new[]
         {
-            new RawSourceItem(
-                sourceId,
-                Guid.NewGuid(),
-                "Raw",
-                new Uri(canonicalUrl),
-                null,
-                new DateTimeOffset(2026, 9, 25, 0, 0, 0, TimeSpan.Zero),
-                "content",
-                new ContentHash(Guid.NewGuid().ToString("N")))
+            new RawSourceItemSummary(sourceId, null, new DateTimeOffset(2026, 9, 25, 0, 0, 0, TimeSpan.Zero), canonicalUrl, Guid.NewGuid(), SourceClass.CurrentOfficial)
         });
 
         var generator = new LlmPersonaReportGenerator(llm, rawRepo, NullLogger<LlmPersonaReportGenerator>.Instance);
@@ -435,18 +421,9 @@ public sealed class ReportingTests
         }
         """));
         var rawRepo = Substitute.For<IRawSourceRepository>();
-        rawRepo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
+        rawRepo.GetByIdsAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<CancellationToken>()).Returns(new[]
         {
-            new RawSourceItem(
-                Guid.NewGuid(),
-                Guid.NewGuid(),
-                "Trend",
-                new Uri("https://example.com/trend"),
-                new DateTimeOffset(2026, 3, 4, 0, 0, 0, TimeSpan.Zero),
-                DateTimeOffset.UtcNow,
-                "content",
-                new ContentHash(Guid.NewGuid().ToString("N")),
-                sourceClass: SourceClass.TrendResearch)
+            new RawSourceItemSummary(Guid.NewGuid(), new DateTimeOffset(2026, 3, 4, 0, 0, 0, TimeSpan.Zero), DateTimeOffset.UtcNow, "https://example.com/trend", Guid.NewGuid(), SourceClass.TrendResearch)
         });
 
         var generator = new LlmPersonaReportGenerator(llm, rawRepo, NullLogger<LlmPersonaReportGenerator>.Instance);
@@ -565,11 +542,9 @@ public sealed class ReportingTests
     {
         var intelligence = Intelligence(topic: "Developer platform", category: "AI Developer", product: "SDK", conceptTags: new[] { AIConceptTag.DeveloperPlatform });
         var repo = Substitute.For<ITrendEvidenceRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
-        {
+        SetCandidateTrends(repo,
             Trend("Developer platform", "Same source evidence.", sourceUrl: intelligence.SourceUrl, conceptTags: new[] { AIConceptTag.DeveloperPlatform }, trendFamily: TrendFamily.OrganizationalAIAdoption),
-            Trend("Developer platform", "Independent evidence.", sourceUrl: new Uri("https://trend.example.com/independent"), conceptTags: new[] { AIConceptTag.DeveloperPlatform }, trendFamily: TrendFamily.OrganizationalAIAdoption)
-        });
+            Trend("Developer platform", "Independent evidence.", sourceUrl: new Uri("https://trend.example.com/independent"), conceptTags: new[] { AIConceptTag.DeveloperPlatform }, trendFamily: TrendFamily.OrganizationalAIAdoption));
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
         var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 1, CancellationToken.None);
@@ -584,11 +559,9 @@ public sealed class ReportingTests
     {
         var intelligence = Intelligence(topic: "Developer platform", category: "AI Developer", product: "SDK", conceptTags: new[] { AIConceptTag.DeveloperPlatform });
         var repo = Substitute.For<ITrendEvidenceRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
-        {
+        SetCandidateTrends(repo,
             Trend("Developer platform SDK", "Same source evidence.", sourceUrl: intelligence.SourceUrl, conceptTags: new[] { AIConceptTag.DeveloperPlatform }, trendFamily: TrendFamily.OrganizationalAIAdoption),
-            Trend("Developer platform", "Independent evidence.", sourceUrl: new Uri("https://trend.example.com/independent"), conceptTags: new[] { AIConceptTag.DeveloperPlatform }, trendFamily: TrendFamily.OrganizationalAIAdoption)
-        });
+            Trend("Developer platform", "Independent evidence.", sourceUrl: new Uri("https://trend.example.com/independent"), conceptTags: new[] { AIConceptTag.DeveloperPlatform }, trendFamily: TrendFamily.OrganizationalAIAdoption));
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
         var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 1, CancellationToken.None);
@@ -604,14 +577,12 @@ public sealed class ReportingTests
     {
         var intelligence = Intelligence(topic: "Agent evaluation", category: "AI Agent", product: "Agent SDK", conceptTags: new[] { AIConceptTag.AgenticAI, AIConceptTag.Evaluation });
         var repo = Substitute.For<ITrendEvidenceRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
-        {
+        SetCandidateTrends(repo,
             Trend("Agent evaluation", "Agent benchmark performance improved.", sourceUrl: new Uri("https://trend.example.com/1"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentTaskPerformance),
             Trend("Agent evaluation", "Agent evaluation tooling updated.", sourceUrl: new Uri("https://trend.example.com/2"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentTaskPerformance),
             Trend("Agent evaluation", "Agent adoption continued.", sourceUrl: new Uri("https://trend.example.com/3"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentReliability),
             Trend("Agent evaluation", "Agent testing trends.", sourceUrl: new Uri("https://trend.example.com/4"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentReliability),
-            Trend("Agent evaluation", "Agent workflow change.", sourceUrl: new Uri("https://trend.example.com/5"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentTaskPerformance)
-        });
+            Trend("Agent evaluation", "Agent workflow change.", sourceUrl: new Uri("https://trend.example.com/5"), conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentTaskPerformance));
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
         var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 3, CancellationToken.None);
@@ -629,12 +600,10 @@ public sealed class ReportingTests
             summary: "Hosted agents gain new tool-use primitives.",
             conceptTags: new[] { AIConceptTag.AgenticAI, AIConceptTag.ToolUse });
         var repo = Substitute.For<ITrendEvidenceRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
-        {
+        SetCandidateTrends(repo,
             Trend("Agent task performance", "Agent task completion rates improved.", conceptTags: new[] { AIConceptTag.AgenticAI, AIConceptTag.ToolUse }, trendFamily: TrendFamily.AgentTaskPerformance),
             Trend("Consumer value", "Consumer surplus continues climbing.", conceptTags: new[] { AIConceptTag.EnterpriseAdoption }, trendFamily: TrendFamily.ConsumerAIValue),
-            Trend("Organization adoption", "Enterprise adoption for agents grows.", conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.OrganizationalAIAdoption)
-        });
+            Trend("Organization adoption", "Enterprise adoption for agents grows.", conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.OrganizationalAIAdoption));
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
         var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 2, CancellationToken.None);
@@ -653,12 +622,10 @@ public sealed class ReportingTests
             summary: "Speech LLM adds multimodal reasoning.",
             conceptTags: new[] { AIConceptTag.SpeechVoice, AIConceptTag.MultimodalAI, AIConceptTag.ModelCapability });
         var repo = Substitute.For<ITrendEvidenceRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
-        {
+        SetCandidateTrends(repo,
             Trend("Speech voice", "Speech model accuracy improves.", conceptTags: new[] { AIConceptTag.SpeechVoice }, trendFamily: TrendFamily.ModelPerformanceConvergence),
             Trend("Benchmark saturation", "Benchmarks are saturated.", conceptTags: new[] { AIConceptTag.Evaluation }, trendFamily: TrendFamily.BenchmarkSaturation),
-            Trend("AI investment", "Capital inflows rise.", conceptTags: new[] { AIConceptTag.AIInvestment }, trendFamily: TrendFamily.CorporateAIInvestment)
-        });
+            Trend("AI investment", "Capital inflows rise.", conceptTags: new[] { AIConceptTag.AIInvestment }, trendFamily: TrendFamily.CorporateAIInvestment));
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
         var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 2, CancellationToken.None);
@@ -677,14 +644,12 @@ public sealed class ReportingTests
             summary: "Foundry roundup highlights hosted agents, toolboxes, model router, voice live, local runtime, and SDK updates.",
             conceptTags: new[] { AIConceptTag.AgenticAI, AIConceptTag.ToolUse, AIConceptTag.ModelOperations, AIConceptTag.SpeechVoice, AIConceptTag.DeveloperPlatform });
         var repo = Substitute.For<ITrendEvidenceRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
-        {
+        SetCandidateTrends(repo,
             Trend("Agent performance", "Agent tasks improve.", conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentTaskPerformance),
             Trend("Agent adoption", "Agent adoption grows.", conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.OrganizationalAIAdoption),
             Trend("Compute spend", "Compute infrastructure spend rises.", conceptTags: new[] { AIConceptTag.ModelOperations }, trendFamily: TrendFamily.ComputeInfrastructureSpend),
             Trend("Voice live", "Voice live usage expands.", conceptTags: new[] { AIConceptTag.SpeechVoice }, trendFamily: TrendFamily.ModelPerformanceConvergence),
-            Trend("Open closed gap", "Open vs closed gap continues.", conceptTags: new[] { AIConceptTag.ModelCapability }, trendFamily: TrendFamily.OpenClosedModelGap)
-        });
+            Trend("Open closed gap", "Open vs closed gap continues.", conceptTags: new[] { AIConceptTag.ModelCapability }, trendFamily: TrendFamily.OpenClosedModelGap));
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
         var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 3, CancellationToken.None);
@@ -705,11 +670,9 @@ public sealed class ReportingTests
             summary: "Agent reliability tooling improved.",
             conceptTags: new[] { AIConceptTag.AgenticAI });
         var repo = Substitute.For<ITrendEvidenceRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
-        {
+        SetCandidateTrends(repo,
             Trend("Agent reliability", "Agent reliability improved.", period: "2023", periodProvenance: TrendEvidencePeriodProvenance.PublicationDate, conceptTags: new[] { AIConceptTag.AgenticAI }, trendFamily: TrendFamily.AgentReliability),
-            Trend("Consumer adoption", "Consumer adoption surged.", period: "2026", periodProvenance: TrendEvidencePeriodProvenance.SourceMetadata, conceptTags: new[] { AIConceptTag.EnterpriseAdoption }, trendFamily: TrendFamily.ConsumerAIAdoption)
-        });
+            Trend("Consumer adoption", "Consumer adoption surged.", period: "2026", periodProvenance: TrendEvidencePeriodProvenance.SourceMetadata, conceptTags: new[] { AIConceptTag.EnterpriseAdoption }, trendFamily: TrendFamily.ConsumerAIAdoption));
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
         var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 1, CancellationToken.None);
@@ -727,11 +690,9 @@ public sealed class ReportingTests
             summary: "Speech LLM updates.",
             conceptTags: new[] { AIConceptTag.SpeechVoice });
         var repo = Substitute.For<ITrendEvidenceRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[]
-        {
+        SetCandidateTrends(repo,
             Trend("Benchmark saturation", "Benchmarks saturated.", conceptTags: new[] { AIConceptTag.Evaluation }, trendFamily: TrendFamily.BenchmarkSaturation),
-            Trend("Speech voice", "Speech improvements.", conceptTags: new[] { AIConceptTag.SpeechVoice }, trendFamily: TrendFamily.ModelPerformanceConvergence)
-        });
+            Trend("Speech voice", "Speech improvements.", conceptTags: new[] { AIConceptTag.SpeechVoice }, trendFamily: TrendFamily.ModelPerformanceConvergence));
         var selector = new TrendCandidateSelector(repo, NullLogger<TrendCandidateSelector>.Instance);
 
         var selection = await selector.SelectCandidatesAsync(intelligence, maxCandidates: 2, CancellationToken.None);
@@ -739,6 +700,37 @@ public sealed class ReportingTests
         var benchmarkDiagnostic = Assert.Single(selection.Diagnostics.Where(diagnostic => diagnostic.Topic == "Benchmark saturation"));
         Assert.Equal(0, benchmarkDiagnostic.FamilyCompatibilityScore);
         Assert.Contains("Rejected", benchmarkDiagnostic.RejectionReason ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void SetCandidateTrends(ITrendEvidenceRepository repository, params TrendEvidence[] trends)
+    {
+        var candidates = trends.Select(trend => new TrendEvidenceCandidate(
+                trend.Id,
+                trend.SourceItemId,
+                trend.Topic,
+                trend.Period,
+                trend.PeriodProvenance,
+                trend.Finding,
+                trend.EvidenceSummary,
+                trend.Confidence,
+                trend.SourceUrl,
+                trend.PublicationName,
+                trend.ConceptTags,
+                trend.TrendFamily)).ToArray();
+        repository.StreamCandidatesForCorrelationAsync(Arg.Any<CancellationToken>())
+            .Returns(_ => StreamCandidates(candidates));
+        repository.GetCandidatesByIdsAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<CancellationToken>())
+            .Returns(call => Task.FromResult<IReadOnlyCollection<TrendEvidenceCandidate>>(
+                candidates.Where(candidate => call.Arg<IReadOnlyCollection<Guid>>().Contains(candidate.Id)).ToArray()));
+    }
+
+    private static async IAsyncEnumerable<TrendEvidenceCandidate> StreamCandidates(IEnumerable<TrendEvidenceCandidate> candidates)
+    {
+        foreach (var candidate in candidates)
+        {
+            await Task.Yield();
+            yield return candidate;
+        }
     }
 
     private static IntelligenceItem Intelligence(

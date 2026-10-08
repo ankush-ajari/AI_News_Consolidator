@@ -23,4 +23,12 @@ public interface IRawSourceRepository
     Task<IReadOnlyCollection<RawSourceItem>> ListUnprocessedAsync(CancellationToken cancellationToken);
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+
+    // Retrieve a minimal projection of RawSourceItems by Ids. Caller should supply
+    // the set of RawSourceItem Ids required for downstream operations so the
+    // repository can avoid materializing large text columns (RawContent,
+    // EnrichedContent) for the whole table.
+    Task<IReadOnlyCollection<RawSourceItemSummary>> GetByIdsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken);
 }

@@ -51,6 +51,27 @@ public sealed class RawSourceRepository : IRawSourceRepository
         return await _dbContext.RawSourceItems.AsNoTracking().ToArrayAsync(cancellationToken).ConfigureAwait(false);
     }
 
+    public async Task<IReadOnlyCollection<RawSourceItemSummary>> GetByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken)
+    {
+        if (ids is null || ids.Count == 0)
+        {
+            return Array.Empty<RawSourceItemSummary>();
+        }
+
+        return await _dbContext.RawSourceItems
+            .AsNoTracking()
+            .Where(item => ids.Contains(item.Id))
+            .Select(item => new RawSourceItemSummary(
+                item.Id,
+                item.PublishedAt,
+                item.FetchedAt,
+                item.CanonicalUrl,
+                item.SourceDefinitionId,
+                item.SourceClass))
+            .ToArrayAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyCollection<RawSourceItem>> ListUnprocessedAsync(CancellationToken cancellationToken)
     {
         return await _dbContext.RawSourceItems

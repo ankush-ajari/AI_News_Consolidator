@@ -31,9 +31,10 @@ public sealed class ReportOrchestrationService
 
     public async Task<(ReportGenerationResult Result, string Markdown)> GenerateAsync(int? limit, bool verbose, CancellationToken cancellationToken)
     {
-        var intelligenceItems = (await _intelligenceRepository.ListAsync(cancellationToken).ConfigureAwait(false))
-            .Take(limit is > 0 ? limit.Value : int.MaxValue)
-            .ToArray();
+        var allItems = await _intelligenceRepository.ListAsync(limit.HasValue ? limit : null, cancellationToken).ConfigureAwait(false);
+        var intelligenceItems = allItems is null
+            ? Array.Empty<AiIntelligence.Domain.Models.IntelligenceItem>()
+            : allItems.ToArray();
         var correlations = new List<TrendCorrelation>();
         var allCandidates = new List<TrendEvidence>();
         var llmCallCount = 0;

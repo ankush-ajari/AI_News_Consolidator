@@ -11,6 +11,7 @@ public sealed record AIIntelligenceWorkflowResult(
     int? InsufficientEvidenceCount,
     int? PersonaSectionCount,
     string? ReportPath,
+    string? DocxReportPath,
     IReadOnlyCollection<WorkflowStageError> StageErrors,
     IReadOnlyCollection<WorkflowStageResult> StageResults);
 

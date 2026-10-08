@@ -1,11 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "CZiW1xwBS/5WBvDquQPWeXTKIB50FMPsV4F6O09K4QwSvXHd4+ycbG+aX+PBa1i+PMUnrBlAb9DT1gI9VBH1XA==",
+  "dgSpecHash": "zI6JTBCCVqXj9mrmcLAjCK2fsrU0tbZRXNwq32jKRuPb/4u9+n050oebOQN4qYE4/gIDbK/rlg+IeqJ5DoSRkQ==",
   "success": true,
   "projectFilePath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\tests\\AiIntelligence.Infrastructure.Tests\\AiIntelligence.Infrastructure.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ajari_a\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\coverlet.collector\\6.0.0\\coverlet.collector.6.0.0.nupkg.sha512",
+    "C:\\Users\\ajari_a\\.nuget\\packages\\documentformat.openxml\\3.2.0\\documentformat.openxml.3.2.0.nupkg.sha512",
+    "C:\\Users\\ajari_a\\.nuget\\packages\\documentformat.openxml.framework\\3.2.0\\documentformat.openxml.framework.3.2.0.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\google.protobuf\\3.30.2\\google.protobuf.3.30.2.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\microsoft.agents.ai\\1.0.0\\microsoft.agents.ai.1.0.0.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\microsoft.agents.ai.abstractions\\1.0.0\\microsoft.agents.ai.abstractions.1.0.0.nupkg.sha512",
@@ -104,6 +106,7 @@
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.io.compression.zipfile\\4.3.0\\system.io.compression.zipfile.4.3.0.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.io.filesystem\\4.3.0\\system.io.filesystem.4.3.0.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.io.filesystem.primitives\\4.3.0\\system.io.filesystem.primitives.4.3.0.nupkg.sha512",
+    "C:\\Users\\ajari_a\\.nuget\\packages\\system.io.packaging\\8.0.1\\system.io.packaging.8.0.1.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.io.pipelines\\10.0.12\\system.io.pipelines.10.0.12.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.linq\\4.3.0\\system.linq.4.3.0.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\system.linq.expressions\\4.3.0\\system.linq.expressions.4.3.0.nupkg.sha512",

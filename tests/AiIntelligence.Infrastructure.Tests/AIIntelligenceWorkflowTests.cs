@@ -9,6 +9,7 @@ using AiIntelligence.Infrastructure.AgentFramework;
 using AiIntelligence.Infrastructure.AgentFramework.Tools;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AiIntelligence.Infrastructure.Tests;
 
@@ -25,10 +26,11 @@ public sealed class AIIntelligenceWorkflowTests
         var correlationTool = Substitute.For<ICorrelateCurrentDevelopmentTool>();
         var personaTool = Substitute.For<IGeneratePersonaReportTool>();
         var renderTool = Substitute.For<IRenderReportTool>();
+        var reportGenerator = Substitute.For<IReportDocumentGenerator>();
         var intelligenceRepository = Substitute.For<IIntelligenceRepository>();
         var trendEvidenceRepository = Substitute.For<ITrendEvidenceRepository>();
         var intelligenceItems = new[] { CreateIntelligence() };
-        intelligenceRepository.ListAsync(Arg.Any<CancellationToken>()).Returns(intelligenceItems);
+        intelligenceRepository.ListForCorrelationAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<int?>(), Arg.Any<CancellationToken>()).Returns(intelligenceItems);
         trendEvidenceRepository.ListAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<TrendEvidence>());
 
         ingestTool.ExecuteAsync(Arg.Any<IngestSourcesInput>(), Arg.Any<CancellationToken>())
@@ -75,9 +77,11 @@ public sealed class AIIntelligenceWorkflowTests
             correlationTool,
             personaTool,
             renderTool,
+            reportGenerator,
             intelligenceRepository,
             trendEvidenceRepository,
-            configuration);
+            configuration,
+            NullLogger<AIIntelligenceWorkflow>.Instance);
 
         var result = await workflow.RunReportAsync(new AIIntelligenceWorkflowOptions(), CancellationToken.None);
 
@@ -102,6 +106,7 @@ public sealed class AIIntelligenceWorkflowTests
         var correlationTool = Substitute.For<ICorrelateCurrentDevelopmentTool>();
         var personaTool = Substitute.For<IGeneratePersonaReportTool>();
         var renderTool = Substitute.For<IRenderReportTool>();
+        var reportGenerator = Substitute.For<IReportDocumentGenerator>();
         var intelligenceRepository = Substitute.For<IIntelligenceRepository>();
         var trendEvidenceRepository = Substitute.For<ITrendEvidenceRepository>();
 
@@ -125,9 +130,11 @@ public sealed class AIIntelligenceWorkflowTests
             correlationTool,
             personaTool,
             renderTool,
+            reportGenerator,
             intelligenceRepository,
             trendEvidenceRepository,
-            configuration);
+            configuration,
+            NullLogger<AIIntelligenceWorkflow>.Instance);
 
         var result = await workflow.RunReportAsync(new AIIntelligenceWorkflowOptions(), CancellationToken.None);
 
@@ -148,11 +155,12 @@ public sealed class AIIntelligenceWorkflowTests
         var correlationTool = Substitute.For<ICorrelateCurrentDevelopmentTool>();
         var personaTool = Substitute.For<IGeneratePersonaReportTool>();
         var renderTool = Substitute.For<IRenderReportTool>();
+        var reportGenerator = Substitute.For<IReportDocumentGenerator>();
         var intelligenceRepository = Substitute.For<IIntelligenceRepository>();
         var trendEvidenceRepository = Substitute.For<ITrendEvidenceRepository>();
         var intelligenceItems = new[] { CreateIntelligence() };
         var trendEvidence = new[] { CreateTrendEvidence() };
-        intelligenceRepository.ListAsync(Arg.Any<CancellationToken>()).Returns(intelligenceItems);
+        intelligenceRepository.ListForCorrelationAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<int?>(), Arg.Any<CancellationToken>()).Returns(intelligenceItems);
         trendEvidenceRepository.ListAsync(Arg.Any<CancellationToken>()).Returns(trendEvidence);
         correlationTool.ExecuteAsync(Arg.Any<CorrelateCurrentDevelopmentInput>(), Arg.Any<CancellationToken>())
             .Returns(new CorrelateCurrentDevelopmentResult(CreateCorrelation(), CreateSelection()));
@@ -167,9 +175,11 @@ public sealed class AIIntelligenceWorkflowTests
             correlationTool,
             personaTool,
             renderTool,
+            reportGenerator,
             intelligenceRepository,
             trendEvidenceRepository,
-            configuration);
+            configuration,
+            NullLogger<AIIntelligenceWorkflow>.Instance);
 
         var result = await workflow.RunReportAsync(new AIIntelligenceWorkflowOptions
         {
@@ -180,7 +190,7 @@ public sealed class AIIntelligenceWorkflowTests
         }, CancellationToken.None);
 
         Assert.True(result.Success);
-        await intelligenceRepository.Received(1).ListAsync(Arg.Any<CancellationToken>());
+        await intelligenceRepository.Received(1).ListForCorrelationAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<int?>(), Arg.Any<CancellationToken>());
         await trendEvidenceRepository.ReceivedWithAnyArgs(0).ListAsync(default);
         await currentTool.DidNotReceiveWithAnyArgs().ExecuteAsync(default!, default);
         await trendTool.DidNotReceiveWithAnyArgs().ExecuteAsync(default!, default);
@@ -199,9 +209,10 @@ public sealed class AIIntelligenceWorkflowTests
         var correlationTool = Substitute.For<ICorrelateCurrentDevelopmentTool>();
         var personaTool = Substitute.For<IGeneratePersonaReportTool>();
         var renderTool = Substitute.For<IRenderReportTool>();
+        var reportGenerator = Substitute.For<IReportDocumentGenerator>();
         var intelligenceRepository = Substitute.For<IIntelligenceRepository>();
         var trendEvidenceRepository = Substitute.For<ITrendEvidenceRepository>();
-        intelligenceRepository.ListAsync(Arg.Any<CancellationToken>()).Returns(new[] { CreateIntelligence() });
+        intelligenceRepository.ListForCorrelationAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<int?>(), Arg.Any<CancellationToken>()).Returns(new[] { CreateIntelligence() });
         correlationTool.ExecuteAsync(Arg.Any<CorrelateCurrentDevelopmentInput>(), Arg.Any<CancellationToken>())
             .Returns(call =>
             {
@@ -216,10 +227,11 @@ public sealed class AIIntelligenceWorkflowTests
             correlationTool,
             personaTool,
             renderTool,
+            reportGenerator,
             intelligenceRepository,
             trendEvidenceRepository,
-            configuration);
-
+            configuration,
+            NullLogger<AIIntelligenceWorkflow>.Instance);
         var result = await workflow.RunReportAsync(new AIIntelligenceWorkflowOptions
         {
             RunIngestion = false,

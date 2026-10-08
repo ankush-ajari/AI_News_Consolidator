@@ -111,3 +111,6 @@ E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Application.Tests\bi
 E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Application.Tests\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Diagnostics.EventLog.Messages.dll
 E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Application.Tests\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Diagnostics.EventLog.dll
 E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Application.Tests\obj\Debug\net8.0\AiIntelligence.Application.Tests.sourcelink.json
+E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Application.Tests\bin\Debug\net8.0\DocumentFormat.OpenXml.dll
+E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Application.Tests\bin\Debug\net8.0\DocumentFormat.OpenXml.Framework.dll
+E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Application.Tests\bin\Debug\net8.0\System.IO.Packaging.dll

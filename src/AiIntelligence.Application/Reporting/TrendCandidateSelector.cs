@@ -50,7 +50,6 @@ public sealed class TrendCandidateSelector : ITrendCandidateSelector
         int maxCandidates,
         CancellationToken cancellationToken)
     {
-        var trends = await _trendEvidenceRepository.ListAsync(cancellationToken).ConfigureAwait(false);
         var queryTokens = Tokenize(string.Join(' ', intelligenceItem.Topic, intelligenceItem.Category, intelligenceItem.ProductOrFramework, intelligenceItem.Vendor));
         if (queryTokens.Count == 0)
         {
@@ -58,27 +57,60 @@ public sealed class TrendCandidateSelector : ITrendCandidateSelector
         }
 
         var max = Math.Clamp(maxCandidates, 1, 5);
-        var scored = trends.Select(trend => ScoreCandidate(intelligenceItem, queryTokens, trend)).ToArray();
-        var eligible = scored.Where(candidate => candidate.Eligible).ToArray();
-        if (eligible.Length == 0)
+
+        // Bounded top-K selection: retain only best 'max' candidates.
+        var minScoreThreshold = Math.Max(2, queryTokens.Count >= 4 ? 3 : 2);
+        var evaluatedCount = 0;
+        var eligibleCount = 0;
+
+        var comparer = Comparer<ScoredTrendCandidate>.Create((a, b) =>
         {
-            return new TrendCandidateSelection(Array.Empty<TrendEvidence>(), BuildDiagnostics(scored, Array.Empty<ScoredTrendCandidate>(), Array.Empty<ScoredTrendCandidate>()));
+            // worst-first order (ascending) so Min is worst candidate
+            var c = a.Score.CompareTo(b.Score);
+            if (c != 0) return c;
+            c = a.Trend.Confidence.CompareTo(b.Trend.Confidence);
+            if (c != 0) return c;
+            c = a.IndependentSourceScore.CompareTo(b.IndependentSourceScore);
+            if (c != 0) return c;
+            return a.Trend.Id.CompareTo(b.Trend.Id);
+        });
+
+        var topSet = new SortedSet<ScoredTrendCandidate>(comparer);
+        var evaluated = new List<ScoredTrendCandidate>();
+
+        await foreach (var trend in _trendEvidenceRepository.StreamCandidatesForCorrelationAsync(cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))
+        {
+            evaluatedCount++;
+            var scoredCandidate = ScoreCandidate(intelligenceItem, queryTokens, trend);
+            evaluated.Add(scoredCandidate);
+            if (!scoredCandidate.Eligible || scoredCandidate.Score < minScoreThreshold)
+            {
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug("Rejected candidate {Topic} Score={Score} Eligible={Eligible}", scoredCandidate.Trend.Topic, scoredCandidate.Score, scoredCandidate.Eligible);
+                }
+                continue;
+            }
+
+            eligibleCount++;
+            topSet.Add(scoredCandidate);
+            if (topSet.Count > max)
+            {
+                topSet.Remove(topSet.Min!);
+            }
         }
 
-        var minimumScore = Math.Max(2, queryTokens.Count >= 4 ? 3 : 2);
-        var filtered = eligible.Where(candidate => candidate.Score >= minimumScore).ToArray();
-        if (filtered.Length == 0)
+        if (eligibleCount == 0)
         {
-            return new TrendCandidateSelection(Array.Empty<TrendEvidence>(), BuildDiagnostics(scored, Array.Empty<ScoredTrendCandidate>(), Array.Empty<ScoredTrendCandidate>()));
+            _logger.LogInformation("TrendCandidateSelector: EvaluatedCandidates={Evaluated}; EligibleCandidates=0; SelectedCandidates=0", evaluatedCount);
+            var diagnosticsEmpty = BuildDiagnostics(evaluated, Array.Empty<ScoredTrendCandidate>());
+            return new TrendCandidateSelection(Array.Empty<TrendEvidence>(), diagnosticsEmpty);
         }
 
-        var ranked = filtered.OrderByDescending(candidate => candidate.Score)
-            .ThenByDescending(candidate => candidate.Trend.Confidence)
-            .ThenByDescending(candidate => candidate.IndependentSourceScore)
-            .ToArray();
-
+        var ranked = topSet.Reverse().ToArray();
         var finalSelection = ranked.Take(max).ToArray();
-        var diagnostics = BuildDiagnostics(scored, ranked, finalSelection);
+        var diagnostics = BuildDiagnostics(evaluated, finalSelection);
+        _logger.LogInformation("TrendCandidateSelector: EvaluatedCandidates={Evaluated}; EligibleCandidates={Eligible}; SelectedCandidates={Selected}", evaluatedCount, eligibleCount, finalSelection.Length);
         foreach (var candidate in diagnostics)
         {
             _logger.LogInformation(
@@ -107,10 +139,34 @@ public sealed class TrendCandidateSelector : ITrendCandidateSelector
                 candidate.IndependentSourceScore);
         }
 
-        return new TrendCandidateSelection(finalSelection.Select(candidate => candidate.Trend).ToArray(), diagnostics);
+        var selectedCandidates = await _trendEvidenceRepository.GetCandidatesByIdsAsync(
+            finalSelection.Select(candidate => candidate.Trend.Id).ToArray(),
+            cancellationToken).ConfigureAwait(false);
+        var selectedById = selectedCandidates.ToDictionary(candidate => candidate.Id);
+        return new TrendCandidateSelection(
+            finalSelection.Select(candidate => ToTrendEvidence(selectedById[candidate.Trend.Id])).ToArray(),
+            diagnostics);
     }
 
-    private static ScoredTrendCandidate ScoreCandidate(IntelligenceItem intelligenceItem, IReadOnlyCollection<string> queryTokens, TrendEvidence trend)
+    private static TrendEvidence ToTrendEvidence(TrendEvidenceCandidate candidate)
+    {
+        var evidence = new TrendEvidence(
+            candidate.Id,
+            candidate.SourceItemId,
+            candidate.Topic,
+            candidate.Period,
+            candidate.PeriodProvenance,
+            candidate.Finding,
+            candidate.EvidenceSummary,
+            candidate.Confidence,
+            candidate.SourceUrl,
+            publicationName: candidate.PublicationName,
+            conceptTags: candidate.ConceptTags);
+        evidence.UpdateTrendFamily(candidate.TrendFamily);
+        return evidence;
+    }
+
+    private static ScoredTrendCandidate ScoreCandidate(IntelligenceItem intelligenceItem, IReadOnlyCollection<string> queryTokens, TrendEvidenceCandidate trend)
     {
         var trendTokens = Tokenize(string.Join(' ', trend.Topic, trend.Finding, trend.EvidenceSummary));
         var topicScore = Tokenize(intelligenceItem.Topic).Count(token => trendTokens.Contains(token));
@@ -172,7 +228,16 @@ public sealed class TrendCandidateSelector : ITrendCandidateSelector
 
         var isSameSource = trend.SourceUrl == intelligenceItem.SourceUrl;
         return new ScoredTrendCandidate(
-            trend,
+            new TrendEvidenceCandidateMetadata(
+                trend.Id,
+                trend.Topic,
+                trend.Period,
+                trend.PeriodProvenance,
+                trend.PublicationName,
+                trend.SourceUrl,
+                trend.TrendFamily,
+                trend.Confidence,
+                trend.ConceptTags),
             totalScore,
             matchReason,
             isSameSource,
@@ -227,13 +292,20 @@ public sealed class TrendCandidateSelector : ITrendCandidateSelector
     }
 
     private static IReadOnlyCollection<TrendCandidateDiagnostic> BuildDiagnostics(
-        IReadOnlyCollection<ScoredTrendCandidate> scored,
-        IReadOnlyCollection<ScoredTrendCandidate> ranked,
+        IReadOnlyCollection<ScoredTrendCandidate> candidates,
         IReadOnlyCollection<ScoredTrendCandidate> selected)
     {
+        // Rank candidates best-first for diagnostics
+        var ranked = candidates
+            .OrderByDescending(c => c.Score)
+            .ThenByDescending(c => c.Trend.Confidence)
+            .ThenByDescending(c => c.IndependentSourceScore)
+            .ToArray();
+
         var rankedLookup = ranked.Select((candidate, index) => new { candidate, rank = index + 1 })
             .ToDictionary(item => item.candidate.Trend.Id, item => item.rank);
-        return scored.Select(candidate =>
+
+        return candidates.Select(candidate =>
         {
             rankedLookup.TryGetValue(candidate.Trend.Id, out var rank);
             var isSelected = selected.Any(item => item.Trend.Id == candidate.Trend.Id);
@@ -277,7 +349,7 @@ public sealed class TrendCandidateSelector : ITrendCandidateSelector
         }).ToArray();
     }
 
-    private static int ScorePeriodMetadata(TrendEvidence trend)
+    private static int ScorePeriodMetadata(TrendEvidenceCandidate trend)
     {
         if (string.IsNullOrWhiteSpace(trend.Period) || trend.Period.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
         {
@@ -352,7 +424,7 @@ public sealed class TrendCandidateSelector : ITrendCandidateSelector
     }
 
     private sealed record ScoredTrendCandidate(
-        TrendEvidence Trend,
+        TrendEvidenceCandidateMetadata Trend,
         int Score,
         string MatchReason,
         bool IsSameSource,
@@ -370,4 +442,15 @@ public sealed class TrendCandidateSelector : ITrendCandidateSelector
     {
         public IReadOnlyCollection<AIConceptTag> IntelligenceConceptTags { get; init; } = Array.Empty<AIConceptTag>();
     }
+
+    private sealed record TrendEvidenceCandidateMetadata(
+        Guid Id,
+        string Topic,
+        string Period,
+        TrendEvidencePeriodProvenance PeriodProvenance,
+        string PublicationName,
+        Uri SourceUrl,
+        TrendFamily TrendFamily,
+        decimal Confidence,
+        IReadOnlyCollection<AIConceptTag> ConceptTags);
 }

@@ -7,7 +7,9 @@ using AiIntelligence.Infrastructure.AgentFramework.Tools;
 using AiIntelligence.Infrastructure.Configuration;
 using Microsoft.Agents.AI.Workflows;
 using Microsoft.Agents.AI.Workflows.InProc;
+using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace AiIntelligence.Infrastructure.AgentFramework;
 
@@ -21,9 +23,13 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
     private readonly ICorrelateCurrentDevelopmentTool _correlationTool;
     private readonly IGeneratePersonaReportTool _personaReportTool;
     private readonly IRenderReportTool _renderReportTool;
+    private readonly IReportDocumentGenerator _reportDocumentGenerator;
     private readonly IIntelligenceRepository _intelligenceRepository;
     private readonly ITrendEvidenceRepository _trendEvidenceRepository;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<AIIntelligenceWorkflow> _logger;
+    private static readonly Func<(long ManagedHeap, long WorkingSet, long Private)> _getMemoryMetrics = () =>
+        (GC.GetTotalMemory(false) / 1024 / 1024, Process.GetCurrentProcess().WorkingSet64 / 1024 / 1024, Process.GetCurrentProcess().PrivateMemorySize64 / 1024 / 1024);
 
     public AIIntelligenceWorkflow(
         IIngestSourcesTool ingestSourcesTool,
@@ -32,9 +38,11 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         ICorrelateCurrentDevelopmentTool correlationTool,
         IGeneratePersonaReportTool personaReportTool,
         IRenderReportTool renderReportTool,
+        IReportDocumentGenerator reportDocumentGenerator,
         IIntelligenceRepository intelligenceRepository,
         ITrendEvidenceRepository trendEvidenceRepository,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        ILogger<AIIntelligenceWorkflow> logger)
     {
         _ingestSourcesTool = ingestSourcesTool;
         _currentAnalysisTool = currentAnalysisTool;
@@ -42,9 +50,11 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         _correlationTool = correlationTool;
         _personaReportTool = personaReportTool;
         _renderReportTool = renderReportTool;
+        _reportDocumentGenerator = reportDocumentGenerator;
         _intelligenceRepository = intelligenceRepository;
         _trendEvidenceRepository = trendEvidenceRepository;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task<AIIntelligenceWorkflowResult> RunReportAsync(
@@ -58,6 +68,12 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         {
             var sources = SourceDefinitionConfigurationLoader.Load(_configuration);
             initialState = WorkflowContextState.Create(DateTimeOffset.UtcNow, options, sources);
+
+            if (options.MemoryDiagnostics)
+            {
+                var (mHeap, wSet, pMem) = _getMemoryMetrics();
+                _logger.LogInformation("Memory: Stage=WORKFLOW START; ManagedHeapMB={ManagedHeapMB}; WorkingSetMB={WorkingSetMB}; PrivateMemoryMB={PrivateMemoryMB}", mHeap, wSet, pMem);
+            }
         }
         catch (Exception exception)
         {
@@ -72,6 +88,7 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         Func<WorkflowContextState, IWorkflowContext, CancellationToken, ValueTask<WorkflowContextState>> correlationHandler = ExecuteCorrelationAsync;
         Func<WorkflowContextState, IWorkflowContext, CancellationToken, ValueTask<WorkflowContextState>> personaHandler = ExecutePersonaAsync;
         Func<WorkflowContextState, IWorkflowContext, CancellationToken, ValueTask<WorkflowContextState>> renderHandler = ExecuteRenderAsync;
+        Func<WorkflowContextState, IWorkflowContext, CancellationToken, ValueTask<WorkflowContextState>> docxHandler = ExecuteDocxAsync;
         Func<WorkflowContextState, IWorkflowContext, CancellationToken, ValueTask<WorkflowContextState>> finalizeHandler = FinalizeAsync;
 
         var ingestionExecutor = ingestionHandler
@@ -86,6 +103,8 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
             .BindAsExecutor<WorkflowContextState, WorkflowContextState>("persona-report");
         var renderExecutor = renderHandler
             .BindAsExecutor<WorkflowContextState, WorkflowContextState>("render-report");
+        var docxExecutor = docxHandler
+            .BindAsExecutor<WorkflowContextState, WorkflowContextState>("generate-docx");
         var finalizeExecutor = finalizeHandler
             .BindAsExecutor<WorkflowContextState, WorkflowContextState>("finalize");
 
@@ -100,7 +119,9 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
             .AddEdge<WorkflowContextState>(correlationExecutor, finalizeExecutor, state => state?.CanContinue == false || state?.Options.RunReportGeneration == false)
             .AddEdge<WorkflowContextState>(personaExecutor, renderExecutor, state => state?.CanContinue == true && state?.Options.RunReportGeneration == true)
             .AddEdge<WorkflowContextState>(personaExecutor, finalizeExecutor, state => state?.CanContinue == false || state?.Options.RunReportGeneration == false)
-            .AddEdge<WorkflowContextState>(renderExecutor, finalizeExecutor, _ => true)
+            .AddEdge<WorkflowContextState>(renderExecutor, docxExecutor, state => state?.CanContinue == true && state?.Options.RunReportGeneration == true)
+            .AddEdge<WorkflowContextState>(renderExecutor, finalizeExecutor, state => state?.CanContinue == false || state?.Options.RunReportGeneration == false)
+            .AddEdge<WorkflowContextState>(docxExecutor, finalizeExecutor, _ => true)
             .WithOutputFrom(finalizeExecutor)
             .WithName("AI Intelligence Workflow")
             .WithDescription("Deterministic orchestration over the AI intelligence pipeline.")
@@ -134,6 +155,10 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         var insufficientCount = state.Correlations?.Count(correlation => correlation.Relationship == CorrelationRelationship.InsufficientEvidence) ?? 0;
         var personaCount = state.ReportDocument?.PersonaSections.Count;
         var stageResults = BuildStageResults(state, correlationCount, insufficientCount, personaCount);
+        
+        // Memory diagnostics are emitted to logs only; they are not merged into
+        // the workflow result to avoid retaining diagnostic state in the
+        // workflow's historical snapshots.
 
         return new AIIntelligenceWorkflowResult(
             state.StartedAt,
@@ -152,6 +177,7 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
             insufficientCount == 0 ? null : insufficientCount,
             personaCount,
             state.ReportPath,
+            state.DocxReportPath,
             state.StageErrors,
             stageResults);
     }
@@ -230,6 +256,15 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
                 new Dictionary<string, string>
                 {
                     ["ReportPath"] = state.ReportPath ?? ""
+                }),
+            CreateStageResult(
+                "GenerateDocx",
+                !string.IsNullOrWhiteSpace(state.DocxReportPath),
+                state.Options.RunReportGeneration,
+                state.StageErrors,
+                new Dictionary<string, string>
+                {
+                    ["DocxReportPath"] = state.DocxReportPath ?? ""
                 })
         };
     }
@@ -252,6 +287,7 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         var safeMetrics = metrics
             .Where(pair => !string.IsNullOrWhiteSpace(pair.Value))
             .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase);
+
         return new WorkflowStageResult(stage, status, safeMetrics);
     }
 
@@ -267,9 +303,22 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
 
         try
         {
+            if (state.Options.MemoryDiagnostics)
+            {
+                var (mHeap, wSet, pMem) = _getMemoryMetrics();
+                _logger.LogInformation("Memory: Stage=WORKFLOW START; ManagedHeapMB={ManagedHeapMB}; WorkingSetMB={WorkingSetMB}; PrivateMemoryMB={PrivateMemoryMB}", mHeap, wSet, pMem);
+            }
+
             var result = await _ingestSourcesTool
                 .ExecuteAsync(new IngestSourcesInput(state.Sources), cancellationToken)
                 .ConfigureAwait(false);
+
+            if (state.Options.MemoryDiagnostics)
+            {
+                var (mHeap, wSet, pMem) = _getMemoryMetrics();
+                _logger.LogInformation("Memory: Stage=Ingestion; ManagedHeapMB={ManagedHeapMB}; WorkingSetMB={WorkingSetMB}; PrivateMemoryMB={PrivateMemoryMB}", mHeap, wSet, pMem);
+            }
+
             return state with { IngestionResult = result };
         }
         catch (Exception exception)
@@ -295,6 +344,13 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
                     new AnalyzeCurrentIntelligenceInput(state.Options.CurrentIntelligenceLimit, state.Options.Verbose),
                     cancellationToken)
                 .ConfigureAwait(false);
+
+            if (state.Options.MemoryDiagnostics)
+            {
+                var (mHeap, wSet, pMem) = _getMemoryMetrics();
+                _logger.LogInformation("Memory: Stage=CurrentIntelligence; ManagedHeapMB={ManagedHeapMB}; WorkingSetMB={WorkingSetMB}; PrivateMemoryMB={PrivateMemoryMB}", mHeap, wSet, pMem);
+            }
+
             return state with { CurrentAnalysisResult = result };
         }
         catch (Exception exception)
@@ -318,6 +374,13 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
             var result = await _trendAnalysisTool
                 .ExecuteAsync(new AnalyzeTrendEvidenceInput(state.Options.TrendAnalysisLimit), cancellationToken)
                 .ConfigureAwait(false);
+
+            if (state.Options.MemoryDiagnostics)
+            {
+                var (mHeap, wSet, pMem) = _getMemoryMetrics();
+                _logger.LogInformation("Memory: Stage=TrendAnalysis; ManagedHeapMB={ManagedHeapMB}; WorkingSetMB={WorkingSetMB}; PrivateMemoryMB={PrivateMemoryMB}", mHeap, wSet, pMem);
+            }
+
             return state with { TrendAnalysisResult = result };
         }
         catch (Exception exception)
@@ -338,19 +401,12 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
 
         try
         {
-            var intelligenceItems = await _intelligenceRepository.ListAsync(cancellationToken).ConfigureAwait(false);
             var selectedSourceIds = state.CurrentAnalysisResult?.SelectedCandidates
                 .Select(candidate => candidate.RawSourceItemId)
                 .ToHashSet() ?? new HashSet<Guid>();
-
-            var scopedItems = selectedSourceIds.Count > 0
-                ? intelligenceItems.Where(item => selectedSourceIds.Contains(item.SourceItemId)).ToArray()
-                : Array.Empty<IntelligenceItem>();
-
-            if (scopedItems.Length == 0)
-            {
-                scopedItems = ApplyLimit(FilterMockIntelligenceItems(intelligenceItems), state.Options.CurrentIntelligenceLimit).ToArray();
-            }
+            var scopedItems = await _intelligenceRepository
+                .ListForCorrelationAsync(selectedSourceIds, state.Options.CurrentIntelligenceLimit, cancellationToken)
+                .ConfigureAwait(false);
 
             var correlations = new List<TrendCorrelation>();
             var selectedTrendEvidence = new List<TrendEvidence>();
@@ -366,6 +422,13 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
 
             var distinctEvidence = selectedTrendEvidence.GroupBy(trend => trend.Id).Select(group => group.First()).ToArray();
             var canonicalEvidence = FilterCanonicalTrendEvidence(distinctEvidence);
+
+            if (state.Options.MemoryDiagnostics)
+            {
+                var (mHeap, wSet, pMem) = _getMemoryMetrics();
+                _logger.LogInformation("Memory: Stage=Correlation; ManagedHeapMB={ManagedHeapMB}; WorkingSetMB={WorkingSetMB}; PrivateMemoryMB={PrivateMemoryMB}", mHeap, wSet, pMem);
+            }
+
             return state with { IntelligenceItems = scopedItems, Correlations = correlations, SelectedTrendEvidence = canonicalEvidence };
         }
         catch (Exception exception)
@@ -388,13 +451,21 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         {
             var intelligenceItems = state.IntelligenceItems?.Count > 0
                 ? state.IntelligenceItems
-                : ApplyLimit(await _intelligenceRepository.ListAsync(cancellationToken).ConfigureAwait(false), state.Options.CurrentIntelligenceLimit);
+                : await _intelligenceRepository
+                    .ListForPersonaAsync(state.Options.CurrentIntelligenceLimit, cancellationToken)
+                    .ConfigureAwait(false);
             var correlations = state.Correlations ?? Array.Empty<TrendCorrelation>();
             var trendEvidence = state.SelectedTrendEvidence ?? await GetTrendEvidenceForCorrelationsAsync(correlations, cancellationToken).ConfigureAwait(false);
 
             var document = await _personaReportTool
                 .ExecuteAsync(new GeneratePersonaReportInput(intelligenceItems, correlations, trendEvidence), cancellationToken)
                 .ConfigureAwait(false);
+
+            if (state.Options.MemoryDiagnostics)
+            {
+                var (mHeap, wSet, pMem) = _getMemoryMetrics();
+                _logger.LogInformation("Memory: Stage=PersonaReport; ManagedHeapMB={ManagedHeapMB}; WorkingSetMB={WorkingSetMB}; PrivateMemoryMB={PrivateMemoryMB}", mHeap, wSet, pMem);
+            }
 
             return state with { ReportDocument = document };
         }
@@ -426,6 +497,13 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
             Directory.CreateDirectory(outputDirectory);
             var outputFile = Path.Combine(outputDirectory, "ai-intelligence-report.md");
             File.WriteAllText(outputFile, markdown);
+
+            if (state.Options.MemoryDiagnostics)
+            {
+                var (mHeap, wSet, pMem) = _getMemoryMetrics();
+                _logger.LogInformation("Memory: Stage=RenderReport; ManagedHeapMB={ManagedHeapMB}; WorkingSetMB={WorkingSetMB}; PrivateMemoryMB={PrivateMemoryMB}", mHeap, wSet, pMem);
+            }
+
             return ValueTask.FromResult(state with { Markdown = markdown, ReportPath = outputFile });
         }
         catch (Exception exception)
@@ -434,11 +512,54 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         }
     }
 
-    private static ValueTask<WorkflowContextState> FinalizeAsync(
+    private async ValueTask<WorkflowContextState> ExecuteDocxAsync(
         WorkflowContextState state,
         IWorkflowContext context,
         CancellationToken cancellationToken)
     {
+        if (!state.CanContinue || !state.Options.RunReportGeneration)
+        {
+            return state;
+        }
+
+        if (string.IsNullOrWhiteSpace(state.ReportPath))
+        {
+            return state.AddStageError("GenerateDocx", "MissingReport", "Markdown report was not generated.");
+        }
+
+        try
+        {
+            var outputDirectory = Path.Combine(Environment.CurrentDirectory, "output");
+            Directory.CreateDirectory(outputDirectory);
+            var outputFile = Path.Combine(outputDirectory, "ai-intelligence-report.docx");
+            await _reportDocumentGenerator.GenerateDocxAsync(state.ReportPath, outputFile, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (state.Options.MemoryDiagnostics)
+            {
+                var (mHeap, wSet, pMem) = _getMemoryMetrics();
+                _logger.LogInformation("Memory: Stage=GenerateDocx; ManagedHeapMB={ManagedHeapMB}; WorkingSetMB={WorkingSetMB}; PrivateMemoryMB={PrivateMemoryMB}", mHeap, wSet, pMem);
+            }
+
+            return state with { DocxReportPath = outputFile };
+        }
+        catch (Exception exception)
+        {
+            return state.AddStageError("GenerateDocx", exception.GetType().Name, exception.Message);
+        }
+    }
+
+    private ValueTask<WorkflowContextState> FinalizeAsync(
+        WorkflowContextState state,
+        IWorkflowContext context,
+        CancellationToken cancellationToken)
+    {
+        if (state.Options.MemoryDiagnostics)
+        {
+            var (mHeap, wSet, pMem) = _getMemoryMetrics();
+            _logger.LogInformation("Memory: Stage=WORKFLOW COMPLETE; ManagedHeapMB={ManagedHeapMB}; WorkingSetMB={WorkingSetMB}; PrivateMemoryMB={PrivateMemoryMB}", mHeap, wSet, pMem);
+        }
+
         return ValueTask.FromResult(state);
     }
 
@@ -547,8 +668,10 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
             return Array.Empty<TrendEvidence>();
         }
 
-        var trendEvidence = await _trendEvidenceRepository.ListAsync(cancellationToken).ConfigureAwait(false);
-        return trendEvidence.Where(trend => sourceUrls.Contains(trend.SourceUrl.AbsoluteUri))
-            .ToArray();
+        // Use repository API to fetch only the trend evidence matching the
+        // supporting source URLs. This avoids fetching the entire table into
+        // memory.
+        var evidence = await _trendEvidenceRepository.GetBySourceUrlsAsync(sourceUrls.ToArray(), cancellationToken).ConfigureAwait(false);
+        return evidence.ToArray();
     }
 }

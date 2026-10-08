@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AiIntelligence.Domain.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+48a66aca6342f6137c005062285e27cb7738cf5f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4485e3fd2963a14d5c92769f0512f2cc73cea1c7")]
 [assembly: System.Reflection.AssemblyProductAttribute("AiIntelligence.Domain.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AiIntelligence.Domain.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

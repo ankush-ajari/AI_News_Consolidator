@@ -1,12 +1,15 @@
 {
   "version": 2,
-  "dgSpecHash": "JxOaNLXkyoL0/hIyraLCRLQi25Kk7ReMSMOn09ldZfwMwisnabTUN3ChGadQa0KCkAejrHbj57LshU33tds04g==",
+  "dgSpecHash": "I5oMmpU3pZqlPxS1zYC/ooCceqI1Jrdlip0+/Cs1ZxcXmDYjaMmM+mlKZAs5SH/W8bKc8gRyOGztCpjpdxdgLQ==",
   "success": true,
   "projectFilePath": "E:\\Ankush\\Samples\\AI_News_Consolidator\\src\\AiIntelligence.Application\\AiIntelligence.Application.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\ajari_a\\.nuget\\packages\\documentformat.openxml\\3.2.0\\documentformat.openxml.3.2.0.nupkg.sha512",
+    "C:\\Users\\ajari_a\\.nuget\\packages\\documentformat.openxml.framework\\3.2.0\\documentformat.openxml.framework.3.2.0.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.12\\microsoft.extensions.dependencyinjection.abstractions.10.0.12.nupkg.sha512",
     "C:\\Users\\ajari_a\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\10.0.12\\microsoft.extensions.logging.abstractions.10.0.12.nupkg.sha512",
-    "C:\\Users\\ajari_a\\.nuget\\packages\\system.diagnostics.diagnosticsource\\10.0.12\\system.diagnostics.diagnosticsource.10.0.12.nupkg.sha512"
+    "C:\\Users\\ajari_a\\.nuget\\packages\\system.diagnostics.diagnosticsource\\10.0.12\\system.diagnostics.diagnosticsource.10.0.12.nupkg.sha512",
+    "C:\\Users\\ajari_a\\.nuget\\packages\\system.io.packaging\\8.0.1\\system.io.packaging.8.0.1.nupkg.sha512"
   ],
   "logs": []
 }

@@ -80,24 +80,63 @@ public sealed class LlmPersonaReportGenerator : IPersonaReportGenerator
             personaSections.Add(await GeneratePersonaSectionAsync(personaType, relevanceAssessments[personaType], intelligenceItems, correlations, trendEvidence, cancellationToken).ConfigureAwait(false));
         }
 
-        var rawSources = intelligenceItems.Any(item => item.PublishedAt is null) || trendEvidence.Count > 0
-            ? await _rawSourceRepository.ListAsync(cancellationToken).ConfigureAwait(false)
-            : Array.Empty<RawSourceItem>();
-        var rawPublishedLookup = rawSources
+        // Determine the set of RawSourceItem ids we actually need for persona/reporting
+        // lookups. Avoid loading RawContent/EnrichedContent for the entire table.
+        var requiredRawIds = new HashSet<Guid>();
+        if (intelligenceItems is not null)
+        {
+            foreach (var item in intelligenceItems)
+            {
+                if (item.SourceItemId != Guid.Empty)
+                {
+                    requiredRawIds.Add(item.SourceItemId);
+                }
+            }
+        }
+
+        if (trendEvidence is not null)
+        {
+            foreach (var t in trendEvidence)
+            {
+                if (t.SourceItemId != Guid.Empty)
+                {
+                    requiredRawIds.Add(t.SourceItemId);
+                }
+            }
+        }
+
+        IReadOnlyCollection<RawSourceItemSummary> rawSummaries;
+        if (requiredRawIds.Count == 0)
+        {
+            rawSummaries = Array.Empty<RawSourceItemSummary>();
+        }
+        else
+        {
+                rawSummaries = await _rawSourceRepository.GetByIdsAsync(requiredRawIds, cancellationToken).ConfigureAwait(false)
+                    ?? Array.Empty<RawSourceItemSummary>();
+        }
+
+        var currentOfficial = rawSummaries
             .Where(item => item.SourceClass == SourceClass.CurrentOfficial)
+            .ToArray();
+
+        var rawPublishedLookup = currentOfficial
             .ToDictionary(item => item.Id, item => item.PublishedAt);
-        var rawPublishedByCanonicalUrl = rawSources
-            .Where(item => item.SourceClass == SourceClass.CurrentOfficial)
+
+        var rawPublishedByCanonicalUrl = currentOfficial
+            .Where(item => !string.IsNullOrWhiteSpace(item.CanonicalUrl))
             .GroupBy(item => item.CanonicalUrl)
             .ToDictionary(group => group.Key, group => group.Select(item => item.PublishedAt).DefaultIfEmpty().Max());
-        var rawFetchedLookup = rawSources
-            .Where(item => item.SourceClass == SourceClass.CurrentOfficial)
-            .ToDictionary(item => item.Id, item => item.FetchedAt);
-        var rawFetchedByCanonicalUrl = rawSources
-            .Where(item => item.SourceClass == SourceClass.CurrentOfficial)
+
+        var rawFetchedLookup = currentOfficial
+            .ToDictionary(item => item.Id, item => item.FetchedAt ?? DateTimeOffset.MinValue);
+
+        var rawFetchedByCanonicalUrl = currentOfficial
+            .Where(item => !string.IsNullOrWhiteSpace(item.CanonicalUrl))
             .GroupBy(item => item.CanonicalUrl)
-            .ToDictionary(group => group.Key, group => group.Max(item => item.FetchedAt));
-        var rawSourcesById = rawSources.ToDictionary(item => item.Id, item => item);
+            .ToDictionary(group => group.Key, group => group.Max(item => item.FetchedAt ?? DateTimeOffset.MinValue));
+
+        var rawSourcesById = rawSummaries.ToDictionary(item => item.Id, item => item);
 
         var trendDeduplication = FilterCanonicalTrendEvidence(trendEvidence, rawSourcesById);
         var canonicalTrends = trendDeduplication.CanonicalTrends;
@@ -469,7 +508,7 @@ public sealed class LlmPersonaReportGenerator : IPersonaReportGenerator
 
     private static TrendDeduplicationResult FilterCanonicalTrendEvidence(
         IReadOnlyCollection<TrendEvidence> evidence,
-        IReadOnlyDictionary<Guid, RawSourceItem> rawSourcesById)
+        IReadOnlyDictionary<Guid, RawSourceItemSummary> rawSourcesById)
     {
         if (evidence.Count == 0)
         {
@@ -576,7 +615,7 @@ public sealed class LlmPersonaReportGenerator : IPersonaReportGenerator
             canonical.GroupBy(entry => entry.Id).Select(group => group.First()).ToArray(),
             suppressedGroups);
 
-        static Guid ResolveSourceDefinitionId(TrendEvidence evidence, IReadOnlyDictionary<Guid, RawSourceItem> rawSourcesById)
+        static Guid ResolveSourceDefinitionId(TrendEvidence evidence, IReadOnlyDictionary<Guid, RawSourceItemSummary> rawSourcesById)
         {
             return rawSourcesById.TryGetValue(evidence.SourceItemId, out var rawSource)
                 ? rawSource.SourceDefinitionId
