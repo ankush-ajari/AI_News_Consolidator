@@ -26,47 +26,64 @@ public static class MarkdownReportParser
                 continue;
             }
 
-            if (line.StartsWith("# ", StringComparison.Ordinal))
+            var trimmedStart = line.TrimStart();
+
+            if (trimmedStart.StartsWith("# ", StringComparison.Ordinal))
             {
                 foreach (var block in FlushParagraph(pendingParagraph))
                 {
                     yield return block;
                 }
 
-                yield return new MarkdownHeading(1, line[2..].Trim());
+                yield return new MarkdownHeading(1, trimmedStart[2..].Trim());
                 continue;
             }
 
-            if (line.StartsWith("## ", StringComparison.Ordinal))
+            if (trimmedStart.StartsWith("## ", StringComparison.Ordinal))
             {
                 foreach (var block in FlushParagraph(pendingParagraph))
                 {
                     yield return block;
                 }
 
-                yield return new MarkdownHeading(2, line[3..].Trim());
+                yield return new MarkdownHeading(2, trimmedStart[3..].Trim());
                 continue;
             }
 
-            if (line.StartsWith("### ", StringComparison.Ordinal))
+            if (trimmedStart.StartsWith("### ", StringComparison.Ordinal))
             {
                 foreach (var block in FlushParagraph(pendingParagraph))
                 {
                     yield return block;
                 }
 
-                yield return new MarkdownHeading(3, line[4..].Trim());
+                yield return new MarkdownHeading(3, trimmedStart[4..].Trim());
                 continue;
             }
 
-            if (line.StartsWith("- ", StringComparison.Ordinal))
+            if (trimmedStart.StartsWith("- ", StringComparison.Ordinal))
             {
                 foreach (var block in FlushParagraph(pendingParagraph))
                 {
                     yield return block;
                 }
 
-                yield return new MarkdownBullet(line[2..].Trim());
+                yield return new MarkdownBullet(trimmedStart[2..].Trim());
+                continue;
+            }
+
+            // Numbered list detection (e.g., "1. item") - treat as ordered list item
+            var trimmed2 = trimmedStart;
+            var dotIndex = trimmed2.IndexOf('.');
+            if (dotIndex > 0 && dotIndex < trimmed2.Length - 1 && int.TryParse(trimmed2[..dotIndex], out _)
+                && trimmed2[dotIndex + 1] == ' ')
+            {
+                foreach (var block in FlushParagraph(pendingParagraph))
+                {
+                    yield return block;
+                }
+
+                yield return new MarkdownNumbered(trimmed2[(dotIndex + 2)..].Trim());
                 continue;
             }
 
@@ -182,6 +199,8 @@ public sealed record MarkdownParagraph(string Text) : MarkdownBlock;
 public sealed record MarkdownBullet(string Text) : MarkdownBlock;
 
 public sealed record MarkdownBlankLine() : MarkdownBlock;
+
+public sealed record MarkdownNumbered(string Text) : MarkdownBlock;
 
 public abstract record MarkdownInline;
 

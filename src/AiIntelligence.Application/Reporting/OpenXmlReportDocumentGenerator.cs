@@ -75,6 +75,9 @@ public sealed class OpenXmlReportDocumentGenerator : IReportDocumentGenerator
                 case MarkdownBullet bullet:
                     paragraph = CreateBulletParagraph(mainPart, bullet.Text);
                     break;
+                case MarkdownNumbered numbered:
+                    paragraph = CreateNumberedParagraph(mainPart, numbered.Text);
+                    break;
                 case MarkdownParagraph paragraphBlock:
                     paragraph = CreateParagraph(mainPart, paragraphBlock.Text);
                     break;
@@ -181,6 +184,18 @@ public sealed class OpenXmlReportDocumentGenerator : IReportDocumentGenerator
                 new NumberingLevelReference { Val = 0 },
                 new NumberingId { Val = 1 })));
         AppendRuns(mainPart, paragraph, text, "Bullet");
+        return paragraph;
+    }
+
+    private Paragraph CreateNumberedParagraph(MainDocumentPart mainPart, string text)
+    {
+        // Reuse the same numbering definition but select numbering id 1
+        var paragraph = new Paragraph(new ParagraphProperties(
+            new ParagraphStyleId { Val = "Normal" },
+            new NumberingProperties(
+                new NumberingLevelReference { Val = 0 },
+                new NumberingId { Val = 1 })));
+        AppendRuns(mainPart, paragraph, text, "Numbered");
         return paragraph;
     }
 
