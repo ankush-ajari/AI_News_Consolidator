@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="5c8330e0-08fd-459e-9d27-46e2f65250fb" name="ajari_a@PUMA-63676-WL 2026-10-12 17:07:14" runUser="XOR-IND\ajari_a" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-12T17:07:14.9492356+05:30" queuing="2026-10-12T17:07:14.9492366+05:30" start="2026-10-12T17:06:52.2168300+05:30" finish="2026-10-12T17:07:15.0997815+05:30" />
+  <TestSettings name="default" id="ae2befa2-5ba9-46c4-b65c-b9afbbb48af6">
+    <Deployment runDeploymentRoot="ajari_a_PUMA-63676-WL_2026-10-12_17_07_14" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="69292910-e731-401c-b933-fd5bc5eee7c6" testId="cb7df584-e6f4-0a13-b93f-b7d5a5e00aeb" testName="AiIntelligence.Domain.Tests.DomainModelTests.SourceDefinition_Requires_Name" computerName="PUMA-63676-WL" duration="00:00:00.0010634" startTime="2026-10-12T17:07:14.0695548+05:30" endTime="2026-10-12T17:07:14.0695562+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="69292910-e731-401c-b933-fd5bc5eee7c6" />
+    <UnitTestResult executionId="888fefab-4b20-4623-bf87-f8d4b78eb596" testId="97977688-e81d-81ed-6c79-540e63daba1d" testName="AiIntelligence.Domain.Tests.DomainModelTests.ContentHash_Uses_ValueEquality" computerName="PUMA-63676-WL" duration="00:00:00.0081271" startTime="2026-10-12T17:07:13.9936171+05:30" endTime="2026-10-12T17:07:13.9936178+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="888fefab-4b20-4623-bf87-f8d4b78eb596" />
+    <UnitTestResult executionId="050dfd0a-3ce2-453e-ac4c-2e30b4010dd7" testId="ffa795bd-573d-e675-0aa2-dd9dd824c0d0" testName="AiIntelligence.Domain.Tests.DomainModelTests.PersonaInsight_Creates_ForEachPersonaType" computerName="PUMA-63676-WL" duration="00:00:00.0213104" startTime="2026-10-12T17:07:13.9786949+05:30" endTime="2026-10-12T17:07:13.9786960+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="050dfd0a-3ce2-453e-ac4c-2e30b4010dd7" />
+    <UnitTestResult executionId="3de4d7b4-c4eb-4aa8-9e4a-1768d8ef6380" testId="350b601c-a828-8ea6-603d-aa346610ad1e" testName="AiIntelligence.Domain.Tests.DomainModelTests.TrendEvidence_Rejects_InvalidConfidence(confidence: -0.01)" computerName="PUMA-63676-WL" duration="00:00:01.0003232" startTime="2026-10-12T17:07:13.8964307+05:30" endTime="2026-10-12T17:07:13.8964644+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3de4d7b4-c4eb-4aa8-9e4a-1768d8ef6380" />
+    <UnitTestResult executionId="8802389c-7665-4c00-bd36-7d959bb7a648" testId="4e44e6d6-21eb-ee78-62f5-20f999a045b4" testName="AiIntelligence.Domain.Tests.DomainModelTests.TrendEvidence_Rejects_InvalidConfidence(confidence: 1.01)" computerName="PUMA-63676-WL" duration="00:00:00.0010065" startTime="2026-10-12T17:07:13.9330708+05:30" endTime="2026-10-12T17:07:13.9330710+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8802389c-7665-4c00-bd36-7d959bb7a648" />
+    <UnitTestResult executionId="e7159a81-1bba-4859-82bb-6dc1b685ae7d" testId="54e7f71f-debb-50cb-3f06-578838473d4a" testName="AiIntelligence.Domain.Tests.DomainModelTests.ContentHash_Trims_Value" computerName="PUMA-63676-WL" duration="00:00:00.0032135" startTime="2026-10-12T17:07:14.0758357+05:30" endTime="2026-10-12T17:07:14.0758359+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e7159a81-1bba-4859-82bb-6dc1b685ae7d" />
+    <UnitTestResult executionId="078b5647-c467-4d53-a527-1004990b8c75" testId="ff846d9a-1be3-7c90-fe7f-bd24764ac9ba" testName="AiIntelligence.Domain.Tests.DomainModelTests.SourceDefinition_Creates_WithExpectedValues" computerName="PUMA-63676-WL" duration="00:00:00.0411605" startTime="2026-10-12T17:07:14.0680023+05:30" endTime="2026-10-12T17:07:14.0680029+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="078b5647-c467-4d53-a527-1004990b8c75" />
+    <UnitTestResult executionId="f6d066a6-0f8b-4557-99af-813fcee9ce34" testId="c9e7a010-4250-6b1f-fd6b-a410e9398044" testName="AiIntelligence.Domain.Tests.DomainModelTests.IntelligenceItem_Creates_WithPersonaIndependentValues" computerName="PUMA-63676-WL" duration="00:00:00.0606762" startTime="2026-10-12T17:07:13.9571220+05:30" endTime="2026-10-12T17:07:13.9571226+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f6d066a6-0f8b-4557-99af-813fcee9ce34" />
+    <UnitTestResult executionId="b3ae17ba-231c-459d-9b88-eb2fcd0340d2" testId="be09552f-38db-7c74-732e-d3c5bdc23866" testName="AiIntelligence.Domain.Tests.DomainModelTests.RawSourceItem_Requires_ContentHash" computerName="PUMA-63676-WL" duration="00:00:00.0391540" startTime="2026-10-12T17:07:14.0265384+05:30" endTime="2026-10-12T17:07:14.0265391+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b3ae17ba-231c-459d-9b88-eb2fcd0340d2" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="AiIntelligence.Domain.Tests.DomainModelTests.IntelligenceItem_Creates_WithPersonaIndependentValues" storage="e:\ankush\samples\ai_news_consolidator\tests\aiintelligence.domain.tests\bin\debug\net8.0\aiintelligence.domain.tests.dll" id="c9e7a010-4250-6b1f-fd6b-a410e9398044">
+      <Execution id="f6d066a6-0f8b-4557-99af-813fcee9ce34" />
+      <TestMethod codeBase="E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\bin\Debug\net8.0\AiIntelligence.Domain.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AiIntelligence.Domain.Tests.DomainModelTests" name="IntelligenceItem_Creates_WithPersonaIndependentValues" />
+    </UnitTest>
+    <UnitTest name="AiIntelligence.Domain.Tests.DomainModelTests.TrendEvidence_Rejects_InvalidConfidence(confidence: 1.01)" storage="e:\ankush\samples\ai_news_consolidator\tests\aiintelligence.domain.tests\bin\debug\net8.0\aiintelligence.domain.tests.dll" id="4e44e6d6-21eb-ee78-62f5-20f999a045b4">
+      <Execution id="8802389c-7665-4c00-bd36-7d959bb7a648" />
+      <TestMethod codeBase="E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\bin\Debug\net8.0\AiIntelligence.Domain.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AiIntelligence.Domain.Tests.DomainModelTests" name="TrendEvidence_Rejects_InvalidConfidence" />
+    </UnitTest>
+    <UnitTest name="AiIntelligence.Domain.Tests.DomainModelTests.SourceDefinition_Creates_WithExpectedValues" storage="e:\ankush\samples\ai_news_consolidator\tests\aiintelligence.domain.tests\bin\debug\net8.0\aiintelligence.domain.tests.dll" id="ff846d9a-1be3-7c90-fe7f-bd24764ac9ba">
+      <Execution id="078b5647-c467-4d53-a527-1004990b8c75" />
+      <TestMethod codeBase="E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\bin\Debug\net8.0\AiIntelligence.Domain.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AiIntelligence.Domain.Tests.DomainModelTests" name="SourceDefinition_Creates_WithExpectedValues" />
+    </UnitTest>
+    <UnitTest name="AiIntelligence.Domain.Tests.DomainModelTests.TrendEvidence_Rejects_InvalidConfidence(confidence: -0.01)" storage="e:\ankush\samples\ai_news_consolidator\tests\aiintelligence.domain.tests\bin\debug\net8.0\aiintelligence.domain.tests.dll" id="350b601c-a828-8ea6-603d-aa346610ad1e">
+      <Execution id="3de4d7b4-c4eb-4aa8-9e4a-1768d8ef6380" />
+      <TestMethod codeBase="E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\bin\Debug\net8.0\AiIntelligence.Domain.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AiIntelligence.Domain.Tests.DomainModelTests" name="TrendEvidence_Rejects_InvalidConfidence" />
+    </UnitTest>
+    <UnitTest name="AiIntelligence.Domain.Tests.DomainModelTests.ContentHash_Trims_Value" storage="e:\ankush\samples\ai_news_consolidator\tests\aiintelligence.domain.tests\bin\debug\net8.0\aiintelligence.domain.tests.dll" id="54e7f71f-debb-50cb-3f06-578838473d4a">
+      <Execution id="e7159a81-1bba-4859-82bb-6dc1b685ae7d" />
+      <TestMethod codeBase="E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\bin\Debug\net8.0\AiIntelligence.Domain.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AiIntelligence.Domain.Tests.DomainModelTests" name="ContentHash_Trims_Value" />
+    </UnitTest>
+    <UnitTest name="AiIntelligence.Domain.Tests.DomainModelTests.ContentHash_Uses_ValueEquality" storage="e:\ankush\samples\ai_news_consolidator\tests\aiintelligence.domain.tests\bin\debug\net8.0\aiintelligence.domain.tests.dll" id="97977688-e81d-81ed-6c79-540e63daba1d">
+      <Execution id="888fefab-4b20-4623-bf87-f8d4b78eb596" />
+      <TestMethod codeBase="E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\bin\Debug\net8.0\AiIntelligence.Domain.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AiIntelligence.Domain.Tests.DomainModelTests" name="ContentHash_Uses_ValueEquality" />
+    </UnitTest>
+    <UnitTest name="AiIntelligence.Domain.Tests.DomainModelTests.SourceDefinition_Requires_Name" storage="e:\ankush\samples\ai_news_consolidator\tests\aiintelligence.domain.tests\bin\debug\net8.0\aiintelligence.domain.tests.dll" id="cb7df584-e6f4-0a13-b93f-b7d5a5e00aeb">
+      <Execution id="69292910-e731-401c-b933-fd5bc5eee7c6" />
+      <TestMethod codeBase="E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\bin\Debug\net8.0\AiIntelligence.Domain.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AiIntelligence.Domain.Tests.DomainModelTests" name="SourceDefinition_Requires_Name" />
+    </UnitTest>
+    <UnitTest name="AiIntelligence.Domain.Tests.DomainModelTests.PersonaInsight_Creates_ForEachPersonaType" storage="e:\ankush\samples\ai_news_consolidator\tests\aiintelligence.domain.tests\bin\debug\net8.0\aiintelligence.domain.tests.dll" id="ffa795bd-573d-e675-0aa2-dd9dd824c0d0">
+      <Execution id="050dfd0a-3ce2-453e-ac4c-2e30b4010dd7" />
+      <TestMethod codeBase="E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\bin\Debug\net8.0\AiIntelligence.Domain.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AiIntelligence.Domain.Tests.DomainModelTests" name="PersonaInsight_Creates_ForEachPersonaType" />
+    </UnitTest>
+    <UnitTest name="AiIntelligence.Domain.Tests.DomainModelTests.RawSourceItem_Requires_ContentHash" storage="e:\ankush\samples\ai_news_consolidator\tests\aiintelligence.domain.tests\bin\debug\net8.0\aiintelligence.domain.tests.dll" id="be09552f-38db-7c74-732e-d3c5bdc23866">
+      <Execution id="b3ae17ba-231c-459d-9b88-eb2fcd0340d2" />
+      <TestMethod codeBase="E:\Ankush\Samples\AI_News_Consolidator\tests\AiIntelligence.Domain.Tests\bin\Debug\net8.0\AiIntelligence.Domain.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="AiIntelligence.Domain.Tests.DomainModelTests" name="RawSourceItem_Requires_ContentHash" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="cb7df584-e6f4-0a13-b93f-b7d5a5e00aeb" executionId="69292910-e731-401c-b933-fd5bc5eee7c6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="97977688-e81d-81ed-6c79-540e63daba1d" executionId="888fefab-4b20-4623-bf87-f8d4b78eb596" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ffa795bd-573d-e675-0aa2-dd9dd824c0d0" executionId="050dfd0a-3ce2-453e-ac4c-2e30b4010dd7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="350b601c-a828-8ea6-603d-aa346610ad1e" executionId="3de4d7b4-c4eb-4aa8-9e4a-1768d8ef6380" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4e44e6d6-21eb-ee78-62f5-20f999a045b4" executionId="8802389c-7665-4c00-bd36-7d959bb7a648" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="54e7f71f-debb-50cb-3f06-578838473d4a" executionId="e7159a81-1bba-4859-82bb-6dc1b685ae7d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ff846d9a-1be3-7c90-fe7f-bd24764ac9ba" executionId="078b5647-c467-4d53-a527-1004990b8c75" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c9e7a010-4250-6b1f-fd6b-a410e9398044" executionId="f6d066a6-0f8b-4557-99af-813fcee9ce34" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="be09552f-38db-7c74-732e-d3c5bdc23866" executionId="b3ae17ba-231c-459d-9b88-eb2fcd0340d2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="9" executed="9" passed="9" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.3.1+6b60a9e56a (64-bit .NET 8.0.3)&#xD;
+[xUnit.net 00:00:02.72]   Discovering: AiIntelligence.Domain.Tests&#xD;
+[xUnit.net 00:00:03.20]   Discovered:  AiIntelligence.Domain.Tests&#xD;
+[xUnit.net 00:00:03.21]   Starting:    AiIntelligence.Domain.Tests&#xD;
+[xUnit.net 00:00:04.85]   Finished:    AiIntelligence.Domain.Tests&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

@@ -70,6 +70,9 @@ public sealed class AIIntelligenceWorkflowTests
                 return "report";
             });
 
+        var publisher = Substitute.For<AiIntelligence.Application.Reporting.IReportFilePublisher>();
+        publisher.PublishDocxAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(new AiIntelligence.Application.Reporting.ReportPublishResult(true, "", "", null)));
+
         var workflow = new AIIntelligenceWorkflow(
             ingestTool,
             currentTool,
@@ -78,12 +81,17 @@ public sealed class AIIntelligenceWorkflowTests
             personaTool,
             renderTool,
             reportGenerator,
+            publisher,
             intelligenceRepository,
             trendEvidenceRepository,
             configuration,
             NullLogger<AIIntelligenceWorkflow>.Instance);
 
         var result = await workflow.RunReportAsync(new AIIntelligenceWorkflowOptions(), CancellationToken.None);
+        if (!result.Success)
+        {
+            System.Console.WriteLine("DEBUG: Workflow StageErrors (names): " + string.Join(", ", result.StageErrors.Select(e => e.Stage + ":" + e.ErrorType + ":" + e.Message)));
+        }
 
         Assert.True(result.Success);
         Assert.Equal(new[] { "ingestion", "current-analysis", "trend-analysis", "correlation", "persona-report", "render-report" }, sequence);
@@ -123,6 +131,9 @@ public sealed class AIIntelligenceWorkflowTests
                 return Task.FromException<IntelligenceAnalysisResult>(new InvalidOperationException("boom"));
             });
 
+        var publisher = Substitute.For<AiIntelligence.Application.Reporting.IReportFilePublisher>();
+        publisher.PublishDocxAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(new AiIntelligence.Application.Reporting.ReportPublishResult(true, "", "", null)));
+
         var workflow = new AIIntelligenceWorkflow(
             ingestTool,
             currentTool,
@@ -131,6 +142,7 @@ public sealed class AIIntelligenceWorkflowTests
             personaTool,
             renderTool,
             reportGenerator,
+            publisher,
             intelligenceRepository,
             trendEvidenceRepository,
             configuration,
@@ -168,6 +180,9 @@ public sealed class AIIntelligenceWorkflowTests
             .Returns(new ReportDocument(DateTimeOffset.UtcNow, "Period", "Summary", Array.Empty<ReportCurrentDevelopment>(), Array.Empty<ReportTrend>(), Array.Empty<TrendCorrelation>(), Array.Empty<PersonaReportSection>(), Array.Empty<SourceReference>()));
         renderTool.Execute(Arg.Any<RenderReportInput>()).Returns("report");
 
+        var publisher = Substitute.For<AiIntelligence.Application.Reporting.IReportFilePublisher>();
+        publisher.PublishDocxAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(new AiIntelligence.Application.Reporting.ReportPublishResult(true, "", "", null)));
+
         var workflow = new AIIntelligenceWorkflow(
             ingestTool,
             currentTool,
@@ -176,6 +191,7 @@ public sealed class AIIntelligenceWorkflowTests
             personaTool,
             renderTool,
             reportGenerator,
+            publisher,
             intelligenceRepository,
             trendEvidenceRepository,
             configuration,
@@ -188,6 +204,10 @@ public sealed class AIIntelligenceWorkflowTests
             RunTrendAnalysis = false,
             RunReportGeneration = true
         }, CancellationToken.None);
+        if (!result.Success)
+        {
+            System.Console.WriteLine("DEBUG: Workflow StageErrors (names): " + string.Join(", ", result.StageErrors.Select(e => e.Stage + ":" + e.ErrorType + ":" + e.Message)));
+        }
 
         Assert.True(result.Success);
         await intelligenceRepository.Received(1).ListForCorrelationAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<int?>(), Arg.Any<CancellationToken>());
@@ -220,6 +240,9 @@ public sealed class AIIntelligenceWorkflowTests
                 return new CorrelateCurrentDevelopmentResult(CreateCorrelation(), CreateSelection());
             });
 
+        var publisher = Substitute.For<AiIntelligence.Application.Reporting.IReportFilePublisher>();
+        publisher.PublishDocxAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(new AiIntelligence.Application.Reporting.ReportPublishResult(true, "", "", null)));
+
         var workflow = new AIIntelligenceWorkflow(
             ingestTool,
             currentTool,
@@ -228,6 +251,7 @@ public sealed class AIIntelligenceWorkflowTests
             personaTool,
             renderTool,
             reportGenerator,
+            publisher,
             intelligenceRepository,
             trendEvidenceRepository,
             configuration,

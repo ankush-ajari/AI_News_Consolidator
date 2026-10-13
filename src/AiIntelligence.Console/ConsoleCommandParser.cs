@@ -39,6 +39,7 @@ public static class ConsoleCommandParser
             || string.Equals(command, "test-llm", StringComparison.OrdinalIgnoreCase)
             || string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase)
             || string.Equals(command, "backfill-concepts", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(command, "backfill-trend-families", StringComparison.OrdinalIgnoreCase);
+                || string.Equals(command, "backfill-trend-families", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(command, "copy-report", StringComparison.OrdinalIgnoreCase);
     }
 }

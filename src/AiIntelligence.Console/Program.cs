@@ -1,7 +1,6 @@
 ﻿using AiIntelligence.Application.Intelligence;
 using AiIntelligence.Application.Reporting;
 using AiIntelligence.Application.Sources;
-using AiIntelligence.Domain.Models;
 using AiIntelligence.Console;
 using AiIntelligence.Domain.Enums;
 using AiIntelligence.Infrastructure.AgentFramework;
@@ -84,8 +83,7 @@ if (string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase))
         TrendAnalysisLimit = ConsoleCommandParser.GetIntOption(args, "--trend-limit"),
         Verbose = verbose,
         MockLlm = ConsoleCommandParser.HasFlag(args, "--mock-llm"),
-        RunIngestion = !ConsoleCommandParser.HasFlag(args, "--skip-ingest"),
-        MemoryDiagnostics = ConsoleCommandParser.HasFlag(args, "--memory-diagnostics")
+        RunIngestion = !ConsoleCommandParser.HasFlag(args, "--skip-ingest")
     };
 
     var result = await workflow.RunReportAsync(options, CancellationToken.None).ConfigureAwait(false);
@@ -171,49 +169,35 @@ if (string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase))
     return;
 }
 
-// Load source definitions only for commands that require source ingestion or discovery.
-var sourceDefinitions = Array.Empty<SourceDefinition>();
+var sourceDefinitions = SourceDefinitionConfigurationLoader.Load(builder.Configuration);
 var sourceFilter = ConsoleCommandParser.GetStringOption(args, "--source");
-var needSources = string.Equals(command, "fetch", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(command, "ingest", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(command, "analyze-trends", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(command, "run-workflow", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(command, "backfill-concepts", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(command, "backfill-trend-families", StringComparison.OrdinalIgnoreCase);
-
-if (needSources)
+if (!string.IsNullOrWhiteSpace(sourceFilter)
+    && (string.Equals(command, "fetch", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "ingest", StringComparison.OrdinalIgnoreCase)))
 {
-    sourceDefinitions = SourceDefinitionConfigurationLoader.Load(builder.Configuration).ToArray();
+    sourceDefinitions = sourceDefinitions
+        .Where(source => source.Name.Equals(sourceFilter, StringComparison.OrdinalIgnoreCase))
+        .ToArray();
+}
+foreach (var source in sourceDefinitions)
+{
+    logger.LogInformation(
+        "Configured source loaded. Name: {SourceName}; SourceClass: {SourceClass}; SourceType: {SourceType}; IsEnabled: {IsEnabled}",
+        source.Name,
+        source.SourceClass,
+        source.SourceType,
+        source.IsEnabled);
+}
 
-    if (!string.IsNullOrWhiteSpace(sourceFilter)
-        && (string.Equals(command, "fetch", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(command, "ingest", StringComparison.OrdinalIgnoreCase)))
+if (!string.Equals(command, "inspect", StringComparison.OrdinalIgnoreCase))
+{
+    if (sourceDefinitions.Count == 0)
     {
-        sourceDefinitions = sourceDefinitions
-            .Where(source => source.Name.Equals(sourceFilter, StringComparison.OrdinalIgnoreCase))
-            .ToArray();
+        Console.WriteLine("No sources are configured. Check appsettings.Development.json or Sources__Definitions environment variables.");
+        return;
     }
 
-    foreach (var source in sourceDefinitions)
-    {
-        logger.LogInformation(
-            "Configured source loaded. Name: {SourceName}; SourceClass: {SourceClass}; SourceType: {SourceType}; IsEnabled: {IsEnabled}",
-            source.Name,
-            source.SourceClass,
-            source.SourceType,
-            source.IsEnabled);
-    }
-
-    if (!string.Equals(command, "inspect", StringComparison.OrdinalIgnoreCase))
-    {
-        if (sourceDefinitions.Length == 0)
-        {
-            Console.WriteLine("No sources are configured. Check appsettings.Development.json or Sources__Definitions environment variables.");
-            return;
-        }
-
-        Console.WriteLine($"Configured sources: {sourceDefinitions.Length}");
-    }
+    Console.WriteLine($"Configured sources: {sourceDefinitions.Count}");
 }
 
 try
@@ -477,6 +461,39 @@ try
         Console.WriteLine("DOCX report generated successfully.");
         Console.WriteLine($"Input: {inputPath}");
         Console.WriteLine($"Output: {outputPath}");
+        return;
+    }
+
+    if (string.Equals(command, "copy-report", StringComparison.OrdinalIgnoreCase))
+    {
+        // Use existing CopyReportCommand implementation — do not duplicate publisher logic here.
+        var inputPath = ConsoleCommandParser.GetStringOption(args, "--input");
+        // Resolve the command type from the Commands namespace
+        var publishResult = await AiIntelligence.Console.Commands.CopyReportCommand.ExecuteAsync(scope.ServiceProvider, inputPath, CancellationToken.None).ConfigureAwait(false);
+
+        if (publishResult.Skipped)
+        {
+            Console.WriteLine("CopyReport: Skipped");
+            if (!string.IsNullOrWhiteSpace(publishResult.ErrorMessage))
+            {
+                Console.WriteLine($"Reason: {publishResult.ErrorMessage}");
+            }
+        }
+        else if (publishResult.Success)
+        {
+            Console.WriteLine("CopyReport: Success");
+            Console.WriteLine($"Source: {publishResult.SourcePath}");
+            if (!string.IsNullOrWhiteSpace(publishResult.DestinationPath))
+            {
+                Console.WriteLine($"Destination: {publishResult.DestinationPath}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("CopyReport: Failed");
+            Console.WriteLine($"Reason: {publishResult.ErrorMessage}");
+        }
+
         return;
     }
 

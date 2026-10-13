@@ -24,6 +24,7 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
     private readonly IGeneratePersonaReportTool _personaReportTool;
     private readonly IRenderReportTool _renderReportTool;
     private readonly IReportDocumentGenerator _reportDocumentGenerator;
+    private readonly AiIntelligence.Application.Reporting.IReportFilePublisher _publisher;
     private readonly IIntelligenceRepository _intelligenceRepository;
     private readonly ITrendEvidenceRepository _trendEvidenceRepository;
     private readonly IConfiguration _configuration;
@@ -39,6 +40,7 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         IGeneratePersonaReportTool personaReportTool,
         IRenderReportTool renderReportTool,
         IReportDocumentGenerator reportDocumentGenerator,
+        AiIntelligence.Application.Reporting.IReportFilePublisher publisher,
         IIntelligenceRepository intelligenceRepository,
         ITrendEvidenceRepository trendEvidenceRepository,
         IConfiguration configuration,
@@ -51,6 +53,7 @@ public sealed class AIIntelligenceWorkflow : IAIIntelligenceWorkflow
         _personaReportTool = personaReportTool;
         _renderReportTool = renderReportTool;
         _reportDocumentGenerator = reportDocumentGenerator;
+        _publisher = publisher;
         _intelligenceRepository = intelligenceRepository;
         _trendEvidenceRepository = trendEvidenceRepository;
         _configuration = configuration;

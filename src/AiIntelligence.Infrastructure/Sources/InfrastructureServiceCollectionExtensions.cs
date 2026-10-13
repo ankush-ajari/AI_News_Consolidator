@@ -13,6 +13,7 @@ using AiIntelligence.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using AiIntelligence.Infrastructure.Configuration;
 
 namespace AiIntelligence.Infrastructure.Sources;
 
@@ -64,6 +65,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IPersonaReportGenerator, LlmPersonaReportGenerator>();
         services.AddScoped<MarkdownReportRenderer>();
         services.AddScoped<IReportDocumentGenerator, OpenXmlReportDocumentGenerator>();
+        // Report publishing
+        services.Configure<ReportPublishingOptions>(configuration.GetSection(ReportPublishingOptions.SectionName));
+        services.AddScoped<AiIntelligence.Application.Reporting.IReportFilePublisher, AiIntelligence.Infrastructure.Reporting.FileSystemReportPublisher>();
         services.AddScoped<ReportOrchestrationService>();
 
         services.AddScoped<IIngestSourcesTool, IngestSourcesTool>();
