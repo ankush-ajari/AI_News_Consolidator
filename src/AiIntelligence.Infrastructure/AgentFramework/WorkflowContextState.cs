@@ -38,6 +38,10 @@ public sealed record WorkflowContextState(
             SelectedTrendEvidence: Array.Empty<TrendEvidence>());
     }
 
+            // PublishResult records the outcome of the optional CopyReport publish step.
+            // It is nullable and only set when the CopyReport executor runs.
+            public AiIntelligence.Application.Reporting.ReportPublishResult? PublishResult { get; init; }
+
     // AddStageMemoryMetrics intentionally removed. Memory diagnostics are now
     // emitted via logging only to avoid embedding diagnostic samples in the
     // immutable workflow state which is retained by the execution engine.
@@ -47,6 +51,17 @@ public sealed record WorkflowContextState(
     public WorkflowContextState AddStageError(string stage, string errorType, string message)
     {
         var errors = StageErrors.Concat(new[] { new WorkflowStageError(stage, errorType, message) }).ToArray();
+        try
+        {
+            var diag = $"AddStageError: Stage={stage}; Type={errorType}; Message={message}";
+            var path = Path.Combine(Path.GetTempPath(), "ai-workflow-addstageerrors.log");
+            File.AppendAllText(path, diag + Environment.NewLine);
+        }
+        catch
+        {
+            // best-effort diagnostics only
+        }
+
         return this with { StageErrors = errors };
     }
 }

@@ -38,21 +38,34 @@ public sealed class FileSystemReportPublisher : IReportFilePublisher
                 Directory.CreateDirectory(destinationDir);
             }
 
-            var fileName = Path.GetFileName(sourceDocxPath)!;
-            var destPath = Path.Combine(destinationDir, fileName);
-
-            if (string.Equals(Path.GetFullPath(sourceDocxPath), Path.GetFullPath(destPath), StringComparison.OrdinalIgnoreCase))
+            // Build base destination filename using sanitized prefix and timestamp
+            var prefix = string.IsNullOrWhiteSpace(_options.FileNamePrefix) ? "AI-Technology-Intelligence" : _options.FileNamePrefix;
+            // Sanitize prefix: remove path separators and invalid filename chars
+            var invalid = Path.GetInvalidFileNameChars().Concat(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }).Distinct().ToArray();
+            var safePrefix = new string(prefix.Where(ch => !invalid.Contains(ch)).ToArray());
+            if (string.IsNullOrWhiteSpace(safePrefix))
             {
-                return Task.FromResult(new ReportPublishResult(true, sourceDocxPath, destPath, null));
+                safePrefix = "AI-Technology-Intelligence";
             }
 
-            if (File.Exists(destPath) && !_options.OverwriteExisting)
+            // Use local time (system) formatted to seconds to be consistent with app conventions
+            var timestamp = DateTimeOffset.Now.ToString("yyyyMMdd-HHmmss");
+            var baseName = $"{safePrefix}-{timestamp}.docx";
+            var destPath = Path.Combine(destinationDir, baseName);
+
+            // If destination already exists, append a numeric suffix to avoid overwrite
+            var attempt = 1;
+            var destFull = Path.GetFullPath(destPath);
+            while (File.Exists(destFull))
             {
-                return Task.FromResult(new ReportPublishResult(false, sourceDocxPath, destPath, "Destination file exists and overwrite is disabled."));
+                var numbered = $"{Path.GetFileNameWithoutExtension(baseName)}-{attempt}{Path.GetExtension(baseName)}";
+                destFull = Path.Combine(destinationDir, numbered);
+                attempt++;
             }
 
-            File.Copy(sourceDocxPath, destPath, _options.OverwriteExisting);
-            return Task.FromResult(new ReportPublishResult(true, sourceDocxPath, destPath, null));
+            // Perform copy (do not load into memory)
+            File.Copy(sourceDocxPath, destFull, overwrite: false);
+            return Task.FromResult(new ReportPublishResult(true, sourceDocxPath, destFull, null));
         }
         catch (Exception ex)
         {

@@ -11,10 +11,18 @@ using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using Microsoft.Extensions.Logging.Abstractions;
 
+using Xunit.Abstractions;
+
 namespace AiIntelligence.Infrastructure.Tests;
 
 public sealed class AIIntelligenceWorkflowTests
 {
+    private readonly ITestOutputHelper _output;
+
+    public AIIntelligenceWorkflowTests(ITestOutputHelper output)
+    {
+        _output = output;
+    }
     [Fact]
     public async Task RunReportAsync_ExecutesDeterministicStages_WhenEnabled()
     {
@@ -88,12 +96,13 @@ public sealed class AIIntelligenceWorkflowTests
             NullLogger<AIIntelligenceWorkflow>.Instance);
 
         var result = await workflow.RunReportAsync(new AIIntelligenceWorkflowOptions(), CancellationToken.None);
+        // diagnostics removed
+
         if (!result.Success)
         {
-            System.Console.WriteLine("DEBUG: Workflow StageErrors (names): " + string.Join(", ", result.StageErrors.Select(e => e.Stage + ":" + e.ErrorType + ":" + e.Message)));
+            var details = string.Join(" | ", result.StageErrors.Select(e => e.Stage + ":" + e.ErrorType + ":" + e.Message));
+            throw new Xunit.Sdk.XunitException("Workflow failed; StageErrors: " + details);
         }
-
-        Assert.True(result.Success);
         Assert.Equal(new[] { "ingestion", "current-analysis", "trend-analysis", "correlation", "persona-report", "render-report" }, sequence);
         Assert.Contains(result.StageResults, stage => stage.Stage == "Ingestion" && stage.Status == WorkflowStageStatus.Completed);
         Assert.Contains(result.StageResults, stage => stage.Stage == "CurrentIntelligence" && stage.Status == WorkflowStageStatus.Completed);
@@ -204,12 +213,13 @@ public sealed class AIIntelligenceWorkflowTests
             RunTrendAnalysis = false,
             RunReportGeneration = true
         }, CancellationToken.None);
+        // diagnostics removed
+
         if (!result.Success)
         {
-            System.Console.WriteLine("DEBUG: Workflow StageErrors (names): " + string.Join(", ", result.StageErrors.Select(e => e.Stage + ":" + e.ErrorType + ":" + e.Message)));
+            var details = string.Join(" | ", result.StageErrors.Select(e => e.Stage + ":" + e.ErrorType + ":" + e.Message));
+            throw new Xunit.Sdk.XunitException("Workflow failed; StageErrors: " + details);
         }
-
-        Assert.True(result.Success);
         await intelligenceRepository.Received(1).ListForCorrelationAsync(Arg.Any<IReadOnlyCollection<Guid>>(), Arg.Any<int?>(), Arg.Any<CancellationToken>());
         await trendEvidenceRepository.ReceivedWithAnyArgs(0).ListAsync(default);
         await currentTool.DidNotReceiveWithAnyArgs().ExecuteAsync(default!, default);
